@@ -9,15 +9,11 @@ import {
   memo, useCallback, useRef, useState
 } from 'react';
 
-import * as Hrafnar from '../../hrafnar';
+import * as Hrafnar from '@/hrafnar';
 
 import {
   useAppStore
-} from '../../store';
-
-import {
-  FilesSelector
-} from './filesselector';
+} from '@/store';
 
 import {
   TextArea
@@ -43,6 +39,9 @@ function InputArea(props: InputArea.Props): ReactNode {
 
   // Fetch all the models from the store.
   const allModels = useAppStore(store => store.models);
+
+  // Fetch the tool names from the store.
+  const allTools = useAppStore(store => store.tools);
 
   // Fetch the most recently selected model from the store.
   const recentModel = useAppStore(store => {
@@ -102,13 +101,18 @@ function InputArea(props: InputArea.Props): ReactNode {
     // Convert the files into file ids.
     const fileIds = selectedFiles.map(f => f.id);
 
+    // Extract the tool names.
+    //
+    // TODO all tools are ON for now.
+    const toolNames = allTools.map(tool => tool.name);
+
     // Submit the chat for completion.
     submitChat({
       id: chatId,
       model: model?.name ?? '',
       prompt,
       files: fileIds,
-      tools: []
+      tools: toolNames
     });
   };
 

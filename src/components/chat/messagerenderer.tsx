@@ -27,7 +27,11 @@ import {
 
 import {
   useAppStore
-} from '../../store';
+} from '@/store';
+
+import {
+  ChatScroller
+} from './chatscroller';
 
 import './messagerenderer.css';
 
@@ -105,12 +109,17 @@ function MessageRenderer(props: MessageRenderer.Props): ReactNode {
 
   // Use an effect to render the markdown into HTML.
   useEffect(() => {
-    (async ()=> {
+    (async () => {
       const html = await marked.parse(text);
       const sanitized = DOMPurify.sanitize(html);
       setSafeHtml(sanitized);
     })();
   }, [text]);
+
+  // Scroll the chat to the bottom after rendering.
+  useEffect(() => {
+    ChatScroller.scrollToBottom(chatId);
+  }, [chatId, safeHtml]);
 
   // Return the rendered component.
   return (
