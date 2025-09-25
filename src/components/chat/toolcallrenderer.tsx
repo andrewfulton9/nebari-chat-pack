@@ -6,29 +6,38 @@ import type {
 } from 'react';
 
 import {
-  memo
+  memo, useEffect
 } from 'react';
 
 // import {
 //   useAppStore
 // } from '@/store';
 
+import {
+  ChatScroller
+} from './chatscroller';
+
 
 /**
  * A React component that renders a tool call response.
  */
 export
-function ToolCallRenderer(_props: ToolCallRenderer.Props): ReactNode {
+function ToolCallRenderer(props: ToolCallRenderer.Props): ReactNode {
   // Extract the props.
-  //const { chatId, runId, stepId } = props;
+  const { chatId } = props;
 
-  // // Fetch the response from the store.
-  // //
-  // // The parent dispatch component has already checked the type of the
-  // // response, so this cast is assumed to be safe.
+  // Fetch the response from the store.
+  //
+  // The parent dispatch component has already checked the type of the
+  // response, so this cast is assumed to be safe.
   // const response = useAppStore(
   //   store => store.completionResponses[responseId] as ToolCallResponse
   // );
+
+  // Scroll the chat to the bottom after rendering.
+  useEffect(() => {
+    ChatScroller.scrollToBottom(chatId);
+  }, [chatId]);
 
   // Return the rendered component.
   return (
