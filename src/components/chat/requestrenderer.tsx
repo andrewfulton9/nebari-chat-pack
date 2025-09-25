@@ -6,12 +6,16 @@ import type {
 } from 'react';
 
 import {
-  memo
+  memo, useEffect
 } from 'react';
 
 import {
   useAppStore
 } from '@/store';
+
+import {
+  ChatScroller
+} from './chatscroller';
 
 import './requestrenderer.css';
 
@@ -44,6 +48,11 @@ function RequestRenderer(props: RequestRenderer.Props): ReactNode {
       part.data.content_parts
     ).join('');
   });
+
+  // Scroll the chat to the bottom after rendering.
+  useEffect(() => {
+    ChatScroller.scrollToBottom(chatId);
+  }, [chatId, requestText]);
 
   // Return the rendered component.
   return (

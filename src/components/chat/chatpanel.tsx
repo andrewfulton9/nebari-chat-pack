@@ -18,6 +18,10 @@ import {
 } from './chatlogo';
 
 import {
+  ChatScroller
+} from './chatscroller';
+
+import {
   CompletionAreaMemo
 } from './completionarea';
 
@@ -40,7 +44,7 @@ function ChatPanel(props: ChatPanel.Props): ReactNode {
   const { chatId } = props;
 
   // Determine whether the chat is empty.
-  const empty = useAppStore(store =>{
+  const empty = useAppStore(store => {
     // Get the chat from the store.
     const chat = store.chats.find(chat => chat.id === chatId)!;
 
@@ -58,10 +62,10 @@ function ChatPanel(props: ChatPanel.Props): ReactNode {
   // Return the rendered component.
   return (
     <div className='chat-ChatPanel' data-empty={ empty }>
-      <div className='chat-ChatPanel-scroller'>
+      <ChatScroller chatId={ chatId }>
         { content }
         <InputAreaMemo chatId={ chatId } />
-      </div>
+      </ChatScroller>
     </div>
   );
 }
