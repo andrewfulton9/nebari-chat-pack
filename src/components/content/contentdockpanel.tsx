@@ -17,17 +17,17 @@ import {
   DockPanel
 } from 'otui/containers';
 
+import {
+  ChatPanelMemo, ChatTabMemo
+} from '@/components/chat';
+
 import type {
   PanelSpec
-} from '../../store';
+} from '@/store';
 
 import {
   useAppStore
-} from '../../store';
-
-import {
-  ChatPanelMemo, ChatTabMemo
-} from '../chat';
+} from '@/store';
 
 
 /**

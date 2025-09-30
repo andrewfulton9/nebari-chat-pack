@@ -25,9 +25,6 @@ import {
  */
 export
 function NewChatButton(): ReactNode {
-  // Fetch the `sideBarState` from the store.
-  const sideBarState = useAppStore(store => store.sideBarState);
-
   // Fetch the `createChat` function from the store.
   const createChat = useAppStore(store => store.createChat);
 
@@ -44,9 +41,7 @@ function NewChatButton(): ReactNode {
         'text-text-brand-on-brand bg-bg-brand-default h-9 cursor-pointer',
       ) }>
       <Plus size={ 16 } />
-      <span className={ sideBarState === 'collapsed' ? 'hidden' : '' }>
-        New Chat
-      </span>
+      New Chat
     </button>
   );
 }
