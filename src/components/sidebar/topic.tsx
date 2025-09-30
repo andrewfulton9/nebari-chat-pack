@@ -6,7 +6,7 @@ import {
 } from 'clsx';
 
 import {
-  EllipsisVertical
+  Trash2
 } from 'lucide-react';
 
 import type {
@@ -86,7 +86,7 @@ function Topic(props: Topic.Props): ReactNode {
         { name }
       </span>
       <span className='cursor-pointer' onClick={ handleDelete }>
-        <EllipsisVertical size={ 16 } />
+        <Trash2 size={ 16 } />
       </span>
     </li>
   );

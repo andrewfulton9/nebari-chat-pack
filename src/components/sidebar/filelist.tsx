@@ -15,26 +15,26 @@ import {
 
 import {
   useAppStore,
-} from '../../store';
+} from '@/store';
 
 import {
-  Topic
-} from './topic';
+  FileItem
+} from './fileitem';
 
 
 /**
- * A React component which renders the chat list in the side bar.
+ * A React component which renders the file list in the side bar.
  */
 export
-function ChatList(): ReactNode {
-  // Fetch the chat ids from the store.
-  const chatIds = useAppStore(useShallow(store =>
-    store.chats.map(chat => chat.id)
+function FileList(): ReactNode {
+  // Fetch the file ids from the store.
+  const fileIds = useAppStore(useShallow(store =>
+    store.files.map(file => file.id)
   ));
 
-  // Create the topic components for the chat list.
-  const topics = chatIds.map(chatId =>
-    <Topic key={ chatId } chatId={ chatId } />
+  // Create the file components for the file list.
+  const files = fileIds.map(fileId =>
+    <FileItem key={ fileId } fileId={ fileId } />
   );
 
   // Return the rendered component.
@@ -43,11 +43,11 @@ function ChatList(): ReactNode {
       'flex flex-col flex-auto min-h-0 gap-2 select-none'
       ) }>
       <h1 className='flex-none'>
-        Chats
+        Files
       </h1>
       <div className='flex-auto overflow-y-auto'>
         <ul className='flex flex-col gap-3'>
-          { topics }
+          { files }
         </ul>
       </div>
     </div>

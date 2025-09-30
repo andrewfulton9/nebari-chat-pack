@@ -48,7 +48,7 @@ type PanelSpec = ChatPanelSpec;
  * A type alias for the side bar state.
  */
 export
-type SideBarState = 'open' | 'collapsed';
+type SideBarState = 'none' | 'chats' | 'files';
 
 
 /**
@@ -104,7 +104,7 @@ type UISlice = {
   /**
    * The function to toggle the `SideBar` state.
    */
-  readonly toggleSideBarState: () => void;
+  readonly toggleSideBarState: (state: SideBarState) => void;
 
   /**
    * The function to set the dock layout for the application.
@@ -129,7 +129,7 @@ const createUISlice: StateCreator<UISlice> = (set, get) => ({
   panelSpecs: [],
 
   // Initial side bar state.
-  sideBarState: 'open',
+  sideBarState: 'none',
 
   // Initial dock layout.
   dockLayout: null,
@@ -255,9 +255,9 @@ const createUISlice: StateCreator<UISlice> = (set, get) => ({
   },
 
   // Toggle the side bar state.
-  toggleSideBarState: () => {
-    const state = get().sideBarState;
-    set({ sideBarState: state === 'open' ? 'collapsed' : 'open' });
+  toggleSideBarState: (state: SideBarState) => {
+    const newState = get().sideBarState === state ? 'none' : state;
+    set({ sideBarState: newState });
   },
 
   // Set the dock layout.
