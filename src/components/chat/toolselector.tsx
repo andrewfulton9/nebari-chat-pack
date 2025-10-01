@@ -1,5 +1,5 @@
 import {
-  useState, useMemo
+  useState
 } from "react";
 
 import {
@@ -10,9 +10,11 @@ import {
   Settings
 } from "lucide-react";
 
+import clsx from "clsx";
+
 import {
-  Button
-} from "@/components/ui/button";
+  useShallow
+} from 'zustand/react/shallow';
 
 import {
   Switch
@@ -28,23 +30,53 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 /**
+ * Returns a react component which renders the list of tools.
+ */
+function ToolMenuItems({
+  selected,
+  onToggle,
+}: {
+  selected: string[];
+  onToggle: (name: string) => void;
+}) {
+  
+  const availableTools = useAppStore((store) => store.tools);
+  return (
+    <>
+      {availableTools.map((tool) => {
+        const isChecked = selected.includes(tool.name);
+
+        return (
+          <DropdownMenuItem
+            key={tool.name}
+            onSelect={(e) => {
+              e.preventDefault();
+              onToggle(tool.name);
+            }}
+            className="flex justify-between"
+          >
+            <span>{tool.display_name}</span>
+            <Switch
+              checked={isChecked}
+              className="pointer-events-none data-[state=checked]:!bg-bg-brand-default"
+            />
+          </DropdownMenuItem>
+        );
+      })}
+    </>
+  );
+}
+
+/**
  * A React component which renders the tool selector dropdown.
  *
  * This component hooks into the store to get the available tools.
  */
 export
 function ToolSelector(props: ToolSelector.Props) {
-  // Extract the props.
   const { tools, setTools } = props;
 
-  // Fetch the available tools from the store.
-  const availableTools = useAppStore((store) => store.tools);
-
-  // List of all tool names (for "Select all")
-  const allToolNames = useMemo(
-    () => Array.from(availableTools, (tool) => tool.name),
-    [availableTools]
-  );
+  const allToolNames = useAppStore(useShallow((store) => store.tools.map((tool) => tool.name)));
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -53,66 +85,55 @@ function ToolSelector(props: ToolSelector.Props) {
 
   // Toggle selection for a tool by name.
   const toggleToolSelection = (toolName: string) => {
-  if (tools.includes(toolName)) {
-    setTools(tools.filter(tool => tool !== toolName));
-  } else {
-    setTools([...tools, toolName]);
-  }
-};
+    if (tools.includes(toolName)) {
+      setTools(tools.filter(tool => tool !== toolName));
+    } else {
+      setTools([...tools, toolName]);
+    }
+  };
 
 
   // Return the rendered component.
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
+        <button
+          type="button"
           onClick={() => setIsOpen((prev) => !prev)}
+          className={clsx(
+            "inline-flex items-center gap-2 rounded-md border text-sm font-medium",
+            "h-8 px-3 box-border shadow-sm"
+          )}
         >
-          <Settings className="!text-text-neutral-default" />
+          <Settings className="!text-text-neutral-default size-5 shrink-0" />
           <span>Tools</span>
 
           {selectedCount > 0 && (
             <span
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-xs bg-bg-brand-default text-text-brand-on-brand"
-              aria-label={`${selectedCount} selected`}
+              className={clsx(
+                "inline-flex h-5 w-5 items-center justify-center",
+                "rounded-full text-xs",
+                "bg-bg-brand-default",
+                "text-text-brand-on-brand"
+              )}
             >
               {selectedCount}
             </span>
           )}
-        </Button>
+        </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="start"
-      >
-        <DropdownMenuLabel>Available tools</DropdownMenuLabel>
+      <DropdownMenuContent align="start">
+        <DropdownMenuLabel>
+          Available tools
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        {availableTools.map((tool) => {
-          const isChecked = tools.includes(tool.name);
-          const label = tool.display_name;
-            
-          return (
-            <DropdownMenuItem
-              key={tool.name}
-              // Prevent default Radix select behavior so the menu doesn't close.
-              onSelect={(e) => {
-                e.preventDefault();
-                toggleToolSelection(tool.name);
-              }}
-              className="flex justify-between"
-            >
-              <span>{ label }</span>
+        <ToolMenuItems
+          selected={tools}
+          onToggle={toggleToolSelection}
+        />
 
-              <Switch
-                checked={isChecked}
-                aria-label={label}
-                className="pointer-events-none data-[state=checked]:!bg-bg-brand-default"
-              />
-            </DropdownMenuItem>
-          );
-        })}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={(e) => {

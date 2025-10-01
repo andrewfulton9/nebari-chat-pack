@@ -46,11 +46,6 @@ function InputArea(props: InputArea.Props): ReactNode {
     store => store.models.map(m => m.name)
   ));
 
-  // Fetch the tool names from the store.
-  const allTools = useAppStore(useShallow(
-    store => store.tools.map(tool => tool.name)
-  ));
-
   // Fetch the most recently selected model name from the store.
   const recentModel = useAppStore(store => {
     // Fetch the chat.
