@@ -46,9 +46,6 @@ function InputArea(props: InputArea.Props): ReactNode {
     store => store.models.map(m => m.name)
   ));
 
-  // Fetch the tool names from the store.
-  const allTools = useAppStore(store => store.tools);
-
   // Fetch the most recently selected model name from the store.
   const recentModel = useAppStore(store => {
     // Fetch the chat.
@@ -73,12 +70,19 @@ function InputArea(props: InputArea.Props): ReactNode {
   // Set up the state to track the selected model.
   const [selectedModel, setSelectedModel] = useState<string>('');
 
-  // // Set up the state to track the selected files.
+  // Set up the state to track the list of selected tools
+  const [selectedTools, setSelectedTools] =
+    useState<string[]>([]);
+
+  // Set up the state to track the selected files.
   // const [selectedFiles, setSelectedFiles] =
   //   useState<readonly Hrafnar.FileInfo[]>([]);
 
   // Calculate the model to display in the model selector.
   const model = selectedModel || recentModel || allModels[0];
+
+  // Calculate tool to display in the tools selector.
+  const tools = selectedTools.length ? selectedTools : [];
 
   // The handler for submitting a request from the `UserTextInput`.
   const handleSubmit = (event: FormEvent) => {
@@ -103,18 +107,13 @@ function InputArea(props: InputArea.Props): ReactNode {
     // // Convert the files into file ids.
     // const fileIds = selectedFiles.map(f => f.id);
 
-    // Extract the tool names.
-    //
-    // TODO all tools are ON for now.
-    const toolNames = allTools.map(tool => tool.name);
-
     // Submit the chat for completion.
     submitChat({
       id: chatId,
       model,
       prompt,
       files: [],
-      tools: toolNames
+      tools: tools
     });
   };
 
@@ -161,6 +160,8 @@ function InputArea(props: InputArea.Props): ReactNode {
         <ToolBar
           model={ model }
           setModel={ setSelectedModel }
+          tools={selectedTools} 
+          setTools={setSelectedTools}
           onSubmit={ handleClick } />
       </form>
     </div>

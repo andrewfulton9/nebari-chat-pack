@@ -10,6 +10,10 @@ import {
 } from './modelselector';
 
 import {
+  ToolSelector
+} from './toolselector';
+
+import {
   SubmitButton
 } from './submitbutton';
 
@@ -20,15 +24,18 @@ import {
 export
 function ToolBar(props: ToolBar.Props): ReactNode {
   // Extract the props.
-  const { model, setModel, onSubmit} = props;
+  const { model, setModel, setTools, tools, onSubmit} = props;
 
   // Return the rendered component.
   return (
     <div className='flex flex-row gap-3'>
       <div className='flex flow-row flex-wrap flex-1 items-start gap-3'>
         <ModelSelector model={ model } setModel={ setModel } />
+        <ToolSelector tools={tools} setTools={setTools} />
       </div>
-      <SubmitButton onClick={ onSubmit } />
+      <div className="flex flex-col justify-end">
+        <SubmitButton onClick={onSubmit} />
+      </div>
     </div>
   );
 }
@@ -53,6 +60,16 @@ namespace ToolBar {
      * A callback to set the selected model.
      */
     readonly setModel: (model: string) => void;
+
+    /**
+     *
+     */
+    readonly tools: string[];
+
+    /**
+     *
+     */
+    readonly setTools: (tools: string[]) => void;
 
     /**
      * The click handler for the submit button.
