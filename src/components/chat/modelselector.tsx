@@ -46,19 +46,20 @@ function ModelSelector(props: ModelSelector.Props): ReactNode {
 
   // Return the rendered component.
   return (
-    <Select aria-label='Models' value={model} onChange={handleChange}>
+    <Select aria-label='Model Selector' value={model} onChange={handleChange}>
      <Button className={clsx(
         'h-8 px-3 gap-2 flex flex-row items-center bg-bg-neutral-default',
         'rounded-xs border border-bd-neutral-default cursor-pointer',
         'outline-none data-focused:border-bd-brand-default')}>
-        <SlidersVertical className='size-5' />
+        <SlidersVertical className='size-4' />
         <SelectValue>
           {rp => rp.selectedText}
         </SelectValue>
       </Button>
       <Popover className={clsx(
         'min-w-(--trigger-width) p-1 bg-bg-white rounded-xs',
-        'border border-bd-neutral-default shadow-md')}>
+        'border border-bd-neutral-default shadow-md',
+        'transition-opacity data-entering:opacity-0 data-exiting:opacity-0')}>
         <ListBox items={models}>
           {model =>
             <ListBoxItem
