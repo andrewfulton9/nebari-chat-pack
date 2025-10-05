@@ -71,12 +71,12 @@ function ModelSelector(props: ModelSelector.Props): ReactNode {
                 'data-focused:bg-bg-neutral-dark'
                 )}>
               {rp => <>
-                <span className='flex-none w-4'>
-                  {rp.isSelected && <Check className='size-4' />}
-                </span>
                 <span className={clsx(
                   'flex-auto', rp.isSelected ? 'font-semibold' : '')}>
                   {model.display_name}
+                </span>
+                <span className='flex-none w-4'>
+                  {rp.isSelected && <Check className='size-4' />}
                 </span>
               </>}
             </ListBoxItem>}
