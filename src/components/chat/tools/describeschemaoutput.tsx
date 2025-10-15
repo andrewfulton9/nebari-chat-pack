@@ -3,34 +3,14 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 
 
-function JsonView(props: {
-  jsonOpen: boolean;
-  setJsonOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  jsonStr: string;
-}): ReactNode {
-  const { jsonOpen, setJsonOpen, jsonStr } = props;
+function JsonView(props: { jsonStr: string; maxHeightClass?: string }): ReactNode {
+  const { jsonStr, maxHeightClass = "max-h-64" } = props; // ~16rem cap by default
 
   return (
-    <div className="space-y-1">
-      <button
-        type="button"
-        className="text-xs underline"
-        onClick={() => setJsonOpen((v) => !v)}
-        aria-expanded={jsonOpen}
-      >
-        {jsonOpen ? "Collapse JSON" : "Expand JSON"}
-      </button>
-
-      {/* Collapsed: short, Expanded: taller — both scroll independently */}
-      <div
-        className={`border rounded p-2 bg-white/50 ${
-          jsonOpen ? "h-96" : "h-24"
-        } overflow-auto`}
-      >
-        <pre className="text-xs whitespace-pre break-words min-w-0">
-          {jsonStr}
-        </pre>
-      </div>
+    <div className={`border rounded p-2 bg-white/50 overflow-auto ${maxHeightClass}`}>
+      <pre className="text-xs whitespace-pre break-words min-w-0">
+        {jsonStr}
+      </pre>
     </div>
   );
 }
@@ -173,8 +153,12 @@ export function DescribeSchemaOutput(props: DescribeSchemaOutput.Props): ReactNo
 
   // dynamic keys from the first row
   const keys = useMemo(() => {
-    const first = output[0];
-    return first && typeof first === "object" ? Object.keys(first) : [];
+    if(output) {
+      const first = output[0];
+      return first && typeof first === "object" ? Object.keys(first) : [];
+    }
+
+    return []
   }, [output]);
 
   // controls state
@@ -204,7 +188,7 @@ export function DescribeSchemaOutput(props: DescribeSchemaOutput.Props): ReactNo
   // grouping
   const grouped = useMemo(() => {
     if (!groupKey) return null;
-    
+
     const map = new Map<string, any[]>();
     for (const row of sorted) {
       if (!row || typeof row !== "object") continue;
@@ -220,7 +204,7 @@ export function DescribeSchemaOutput(props: DescribeSchemaOutput.Props): ReactNo
     [grouped, sorted]
   );
 
-  // Chart management selections (kept in parent so they persist with view)
+  // Chart management selections
   const [xField, setXField] = useState<string>(keys[0] ?? "");
   const [yField, setYField] = useState<string>(
     keys.find((k) => typeof (output[0] as any)?.[k] === "number") ?? ""
@@ -250,7 +234,6 @@ export function DescribeSchemaOutput(props: DescribeSchemaOutput.Props): ReactNo
 
   return (
     <div className="space-y-2">
-      {/* Controls: sort, group, view (view is 3rd) */}
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <label className="flex items-center gap-1">
           <span>Sort by:</span>
@@ -298,7 +281,6 @@ export function DescribeSchemaOutput(props: DescribeSchemaOutput.Props): ReactNo
         <JsonView jsonOpen={jsonOpen} setJsonOpen={setJsonOpen} jsonStr={jsonStr} />
       )}
 
-      {/* Table view (respects sort + group) */}
       {view === "table" && (
         <>
           {!grouped && <Table keys={keys} rows={sorted} />}
@@ -312,7 +294,6 @@ export function DescribeSchemaOutput(props: DescribeSchemaOutput.Props): ReactNo
         </>
       )}
 
-      {/* Chart view (respects sort; if grouped, pick a group) */}
       {view === "chart" && (
         <ChartView
           keys={keys}
