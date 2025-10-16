@@ -117,13 +117,11 @@ const createChatsSlice:
 
     // Add the chat and the panel spec to the store.
     set(produce((draft: Draft<ChatsSlice & UISlice>) => {
-      // Insert the new chat at the beginning of the array.
-      //
-      // This maintains the order of most-recent-chat-first.
-      draft.chats.unshift(castDraft(chat));
+      // Add the chat to the draft.
+      draft.chats.push(castDraft(chat));
 
       // Create the panel for the chat.
-      draft.panelSpecs.unshift({ type: 'chat-panel', id: chat.id });
+      draft.panelSpecs.push({ type: 'chat-panel', id: chat.id });
     }));
 
     // Open the panel for the chat.
@@ -154,21 +152,36 @@ const createChatsSlice:
     const stream = Hrafnar.submitChat(options);
 
     // Iterate the Hrafnar stream.
-    for await (const run of stream) {
-      set(produce((draft: Draft<ChatsSlice>) => {
-        // Get the chat runs.
-        const runs = draft.chats.find(chat => chat.id === options.id)!.runs;
+    for await (const evt of stream) {
+      switch (evt.type) {
+      case 'run-update':
+        set(produce((draft: Draft<ChatsSlice>) => {
+          // Get the chat runs.
+          const runs = draft.chats.find(chat => chat.id === options.id)!.runs;
 
-        // Find the index of the most recent matching run.
-        const i = runs.findLastIndex(r => r.id === run.id);
+          // Find the index of the most recent matching run.
+          const i = runs.findLastIndex(r => r.id === evt.run.id);
 
-        // Update the existing run or push a new one.
-        if (i !== -1) {
-          runs[i] = castDraft(run);
-        } else {
-          runs.push(castDraft(run));
-        }
-      }));
+          // Update the existing run or push a new one.
+          if (i !== -1) {
+            runs[i] = castDraft(evt.run);
+          } else {
+            runs.push(castDraft(evt.run));
+          }
+        }));
+        break;
+      case 'task-rename':
+        set(produce((draft: Draft<ChatsSlice>) => {
+          // Fetch the chat object.
+          const chat = draft.chats.find(chat => chat.id === options.id)!;
+
+          // Set the chat display name.
+          chat.display_name = evt.name;
+        }));
+        break;
+      default:
+        break;
+      }
     }
   }
 });
