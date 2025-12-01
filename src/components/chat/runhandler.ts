@@ -9,6 +9,10 @@ import type {
   QueryClient
 } from '@tanstack/react-query';
 
+import type {
+  WritableDraft
+} from 'immer';
+
 import {
   produce
 } from 'immer';
@@ -46,9 +50,12 @@ class RunHandler {
     }
 
     // Create a new session on the server.
-    sessionId = await api.createSession();
+    const resp = await api.createSession();
 
-    // Initialize the query cache for the new session,
+    // Extract the session id.
+    sessionId = resp.session_id;
+
+    // Initialize the query cache for the new session.
     client.setQueryData(createQueryKey(sessionId), []);
 
     // Return the handler for the new session.
@@ -114,17 +121,14 @@ class RunHandler {
       throw new Error(`Unhandled part type: ${part.type}`);
     }
 
-    // Append a new user messages.
-    this._client.setQueryData<ThreadMessageLike[]>(
-      createQueryKey(this._sessionId),
-      produce(draft => {
-        // Guard against an `undefined` cache.
-        if (draft === undefined) {
-          throw new Error('Undefined draft in RunHandler::run');
-        }
+    // Create the query key for the run.
+    const queryKey = createQueryKey(this._sessionId);
 
-        // Initialize the cache with the user message.
-        draft.push({
+    // Initialize the cache with the user message.
+    this._client.setQueryData<ThreadMessageLike[]>(
+      queryKey,
+      produce(draft => {
+        draft!.push({
           role: 'user',
           content: part.text,
           createdAt: message.createdAt
@@ -133,7 +137,7 @@ class RunHandler {
     );
 
     // Set up the event stream for the Agno API.
-    const stream = api.runAgent({
+    const stream = api.createAgentRun({
       session_id: this._sessionId,
       agent_id: agentId,
       message: part.text
@@ -142,88 +146,141 @@ class RunHandler {
     // Handle the stream events from the Agno API.
     for await (const evt of stream) {
       this._client.setQueryData<ThreadMessageLike[]>(
-        createQueryKey(this._sessionId),
-        produce(draft => {
-          // Guard against an `undefined` cache.
-          if (draft === undefined) {
-            throw new Error('Undefined draft in RunHandler::run');
-          }
-
-          // Handle the `RunStarted` event.
-          if (evt.event === 'RunStarted') {
-            // Create a new empty assistant message when the run is started.
-            draft.push({
-              role: 'assistant',
-              id: evt.run_id,
-              createdAt: new Date(evt.created_at),
-              content: []
-            });
-
-            // Nothing more to do.
-            return;
-          }
-
-          // Find the most recent matching assistant message.
-          const msg = draft.findLast(m =>
-            m.role === 'assistant' && m.id === evt.run_id
-          );
-
-          // Log an error if the message is not found.
-          if (!msg) {
-            console.error(`Assistant message not found: ${evt.run_id}`);
-            return;
-          }
-
-          //
-          const content = msg.content;
-          if (typeof content === 'string') {
-            console.error('Assistant message `content` has invalid type');
-            return;
-          }
-
-          // Handle the `RunContent` event.
-          if (evt.event === 'RunContent') {
-            //
-            const last = content[content.length - 1];
-
-            //
-            if (last && last.type === 'text') {
-              last.text += evt.content;
-            } else {
-              content.push({ type: 'text', text: evt.content });
-            }
-
-            // Nothing more to do.
-            return;
-          }
-
-          // Handle the `ToolCallStarted` event.
-          if (evt.event === 'ToolCallStarted') {
-            //
-            content.push({
-              type: 'tool-call',
-              toolCallId: evt.tool.tool_call_id,
-              toolName: evt.tool.tool_name
-            });
-
-            // Nothing more to do.
-            return;
-          }
-
-          // Handle the `ToolCallCompleted` event.
-          if (evt.event === 'ToolCallCompleted') {
-
-            // Nothing more to do.
-            return;
-          }
-
-          // TODO handle more event types.
-          console.log('unhandled event', evt);
-        })
+        queryKey,
+        produce(draft => { Private.processEvent(evt, draft!); })
       );
     }
   }
 
   private _sessionId: string;
   private _client: QueryClient;
+}
+
+
+/**
+ * The namespace for the module implementation details.
+ */
+namespace Private {
+  /**
+   * A type alias for a writeable AUI thread draft.
+   */
+  export
+  type Draft = WritableDraft<ThreadMessageLike>[];
+
+  /**
+   * Process an Agno event and add it's effects to the thread draft.
+   *
+   * @param evt - The Agno run event to process.
+   *
+   * @param draft - The AUI thread message draft to modify.
+   */
+  export
+  function processEvent(evt: api.RunEvent, draft: Draft): void {
+    switch (evt.event) {
+    case 'RunStarted':
+      Private.evtRunStarted(evt, draft);
+      break;
+    case 'RunContent':
+      Private.evtRunContent(evt, draft);
+      break;
+    case 'RunContentCompleted': // no need to handle this event
+      break;
+    case 'RunCompleted': // no need to handle this event
+      break
+    case 'ToolCallStarted':
+      Private.evtToolCallStarted(evt, draft);
+      break;
+    case 'ToolCallCompleted':
+      Private.evtToolCallCompleted(evt, draft);
+      break;
+    default:
+      console.log('unhandled run event', evt);
+    }
+  }
+
+  /**
+   * Handle the `RunStarted` Agno event.
+   */
+  export
+  function evtRunStarted(evt: api.RunStartedEvent, draft: Draft): void {
+    draft.push({
+      role: 'assistant',
+      id: evt.run_id,
+      createdAt: new Date(evt.created_at),
+      content: []
+    });
+  }
+
+  /**
+   * Handle the `RunContent` Agno event.
+   */
+  export
+  function evtRunContent(evt: api.RunContentEvent, draft: Draft): void {
+    // Find the most recent matching assistant message.
+    const msg = draft.findLast(m =>
+      m.role === 'assistant' && m.id === evt.run_id
+    );
+
+    // Log an error if the message is not found.
+    if (!msg) {
+      console.error(`Assistant message not found: ${evt.run_id}`);
+      return;
+    }
+
+    //
+    const content = msg.content;
+    if (typeof content === 'string') {
+      console.error('Assistant message `content` has invalid type');
+      return;
+    }
+
+    //
+    const last = content[content.length - 1];
+
+    //
+    if (last && last.type === 'text') {
+      last.text += evt.content;
+    } else {
+      content.push({ type: 'text', text: evt.content });
+    }
+  }
+
+  /**
+   * Handle the `ToolCallStarted` Agno event.
+   */
+  export
+  function evtToolCallStarted(evt: api.ToolCallStartedEvent, draft: Draft): void {
+    // Find the most recent matching assistant message.
+    const msg = draft.findLast(m =>
+      m.role === 'assistant' && m.id === evt.run_id
+    );
+
+    // Log an error if the message is not found.
+    if (!msg) {
+      console.error(`Assistant message not found: ${evt.run_id}`);
+      return;
+    }
+
+    //
+    const content = msg.content;
+    if (typeof content === 'string') {
+      console.error('Assistant message `content` has invalid type');
+      return;
+    }
+
+    //
+    content.push({
+      type: 'tool-call',
+      toolCallId: evt.tool.tool_call_id,
+      toolName: evt.tool.tool_name
+    });
+  }
+
+  /**
+   * Handle the `ToolCallCompleted` Agno event.
+   */
+  export
+  function evtToolCallCompleted(evt: api.ToolCallCompletedEvent, draft: Draft): void {
+    return;
+  }
 }

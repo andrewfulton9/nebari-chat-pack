@@ -2,7 +2,7 @@
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
 import type {
-  ThreadMessageLike
+  TextMessagePart, ThreadMessageLike, ToolCallMessagePart
 } from '@assistant-ui/react';
 
 import * as api from '@/api';
@@ -42,37 +42,117 @@ class LoadHandler {
       return [];
     }
 
-    // Fetch the chat session.
-    const session = await api.getSessionByID({ session_id: this._sessionId });
+    // Fetch the runs from the server.
+    const runs = await api.getSessionRuns(this._sessionId);
 
-    // Get the chat history from the session.
-    //
-    // TODO get session runs instead of chat history to preserve tool calls.
-    const history = session.chat_history;
+    // Convert the runs to thread messages.
+    const messages = runs.map(Private.convertRun);
 
-    // Convert the history message to AUI messages, if possible.
-    const converted = history.map(msg => this._convert(msg));
-
-    // Return the filtered messages.
-    return converted.filter(msg => msg !== null);
-  }
-
-  /**
-   * Convert an Agno history message to an AUI message.
-   */
-  private _convert(msg: api.ChatHistoryMessage): ThreadMessageLike | null {
-    if (msg.role === 'user' || msg.role === 'assistant') {
-      if (typeof msg.content === 'string') {
-        return {
-          role: msg.role,
-          content: msg.content,
-          createdAt: new Date(msg.created_at)
-        };
-      }
-    }
-    console.log('unhandled history message:', msg);
-    return null;
+    // Return the flattened messages.
+    return messages.flat();
   }
 
   private _sessionId: string | undefined;
+}
+
+
+/**
+ * The namespace for the module implementation details.
+ */
+namespace Private {
+  /**
+   * Convert an Agno run into AUI thread messages.
+   *
+   * @param run - The Agno api run of interest.
+   *
+   * @returns An array of AUI thread messages for the run.
+   */
+  export
+  function convertRun(run: api.Run): ThreadMessageLike[] {
+    // Create the user message.
+    const user = createUserMessage(run);
+
+    // Create the assistant message.
+    const assistant = createAssistantMessage(run);
+
+    // Return the AUI messages.
+    return [user, assistant];
+  }
+
+  /**
+   * Create the AUI user message for an Agno run.
+   *
+   * @param run - The Agno api run of interest.
+   *
+   * @returns The AUI user message for the run.
+   */
+  function createUserMessage(run: api.Run): ThreadMessageLike {
+    return {
+      role: 'user',
+      content: run.run_input,
+      createdAt: new Date(run.created_at)
+    };
+  }
+
+  /**
+   * Create the AUI assistant message for an Agno run.
+   *
+   * @param run - The Agno api run of interest.
+   *
+   * @returns The AUI assistant message for the run.
+   */
+  function createAssistantMessage(run: api.Run): ThreadMessageLike {
+    // Create the tool call parts.
+    const tools = createToolCallParts(run);
+
+    // Create the text part.
+    const text = createTextPart(run);
+
+    // Return the assistant message.
+    return {
+      role: 'assistant',
+      content: [...tools, text],
+      createdAt: new Date(run.created_at)
+    };
+  }
+
+  /**
+   * Create the AUI tool call parts for an Agno run.
+   *
+   * @param run - The Agno api run of interest.
+   *
+   * @returns The AUI tool call parts for the run.
+   */
+  function createToolCallParts(run: api.Run): ToolCallMessagePart[] {
+    return (run.tools ?? []).map(createToolPart);
+  }
+
+  /**
+   * Create an AUI tool call part from an Agno tool call.
+   *
+   * @param tool - The Agno api tool call.
+   *
+   * @returns The equivalent AUI tool call part.
+   */
+  function createToolPart(tool: api.ToolCall): ToolCallMessagePart {
+    return {
+      type: 'tool-call',
+      toolCallId: tool.tool_call_id,
+      toolName: tool.tool_name,
+      args: tool.tool_args as {},
+      argsText: JSON.stringify(tool.tool_args),
+      result: tool.result
+    };
+  }
+
+  /**
+   * Create the AUI assistant text part for an Agno run.
+   *
+   * @param run - The Agno api run of interest.
+   *
+   * @returns The AUI assistant text part for the run.
+   */
+  function createTextPart(run: api.Run): TextMessagePart {
+    return { type: 'text', text: run.content };
+  }
 }

@@ -51,6 +51,10 @@ function AUIProvider(props: AUIProvider.Props): ReactNode {
   const { sessionId, agentId, setSessionId, children } = props;
 
   // Create the query.
+  //
+  // The query cache is marked as static, which means it is never stale
+  // and is only re-fetched on mount. This is because we manually update
+  // the query cache during streaming events, so it's always up-to-date.
   const { data, isFetching } = useQuery({
     queryKey: createQueryKey(sessionId),
     queryFn: Private.loadHistory,
@@ -192,13 +196,10 @@ namespace Private {
     // Extract the variables.
     const { message, sessionId, agentId, setSessionId } = variables;
 
-    // Extract the query client.
-    const { client } = context;
-
     // Create the handler to run the message.
     //
     // This will create a new session id, if needed.
-    const handler = await RunHandler.create(sessionId, client);
+    const handler = await RunHandler.create(sessionId, context.client);
 
     // Update the session id if needed.
     if (sessionId !== handler.sessionId) {
