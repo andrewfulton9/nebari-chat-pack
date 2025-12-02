@@ -2,7 +2,7 @@
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
 import type {
-  AppendMessage, ThreadMessageLike
+  AppendMessage, ThreadMessageLike, ToolCallMessagePart
 } from '@assistant-ui/react';
 
 import type {
@@ -130,7 +130,7 @@ class RunHandler {
       produce(draft => {
         draft!.push({
           role: 'user',
-          content: part.text,
+          content: [{ type: 'text', text: part.text }],
           createdAt: message.createdAt
         });
       })
@@ -203,12 +203,11 @@ namespace Private {
    */
   export
   function evtRunStarted(evt: api.RunStartedEvent, draft: Draft): void {
-    draft.push({
-      role: 'assistant',
-      id: evt.run_id,
-      createdAt: new Date(evt.created_at),
-      content: []
-    });
+    // Create the timestamp for the new message.
+    const createdAt = new Date(evt.created_at);
+
+    // Create a new assistant message with an empty content array.
+    draft.push({ role: 'assistant', createdAt, content: [] });
   }
 
   /**
@@ -216,30 +215,20 @@ namespace Private {
    */
   export
   function evtRunContent(evt: api.RunContentEvent, draft: Draft): void {
-    // Find the most recent matching assistant message.
-    const msg = draft.findLast(m =>
-      m.role === 'assistant' && m.id === evt.run_id
-    );
+    // Find the most recent assistant content.
+    const content = findLastAssistantContent(draft);
 
-    // Log an error if the message is not found.
-    if (!msg) {
-      console.error(`Assistant message not found: ${evt.run_id}`);
+    // Bail if the content was not found.
+    if (!content) {
       return;
     }
 
-    //
-    const content = msg.content;
-    if (typeof content === 'string') {
-      console.error('Assistant message `content` has invalid type');
-      return;
-    }
+    // Find the most recent text part.
+    const part = content.findLast(part => part.type === 'text');
 
-    //
-    const last = content[content.length - 1];
-
-    //
-    if (last && last.type === 'text') {
-      last.text += evt.content;
+    // Update the text message part, or create a new one.
+    if (part) {
+      part.text += evt.content;
     } else {
       content.push({ type: 'text', text: evt.content });
     }
@@ -250,30 +239,35 @@ namespace Private {
    */
   export
   function evtToolCallStarted(evt: api.ToolCallStartedEvent, draft: Draft): void {
-    // Find the most recent matching assistant message.
-    const msg = draft.findLast(m =>
-      m.role === 'assistant' && m.id === evt.run_id
-    );
+    // Find the most recent assistant content.
+    const content = findLastAssistantContent(draft);
 
-    // Log an error if the message is not found.
-    if (!msg) {
-      console.error(`Assistant message not found: ${evt.run_id}`);
+    // Bail if the content was not found.
+    if (!content) {
       return;
     }
 
+    // Find the insert location for the tool call.
     //
-    const content = msg.content;
-    if (typeof content === 'string') {
-      console.error('Assistant message `content` has invalid type');
-      return;
-    }
+    // Part ordering is [...tool-parts, text-part]
+    const i = content.findLastIndex(part => part.type === 'tool-call') + 1;
 
-    //
-    content.push({
+    // Create the tool call part.
+    const part: ToolCallMessagePart = {
       type: 'tool-call',
       toolCallId: evt.tool.tool_call_id,
-      toolName: evt.tool.tool_name
-    });
+      toolName: evt.tool.tool_name,
+      args: evt.tool.tool_args as {},
+      argsText: JSON.stringify(evt.tool.tool_args),
+      result: ''
+    };
+
+    // Insert the tool part into the content.
+    //
+    // The cast is needed to prevent TS "excessively deep type insantiation"
+    // errors. Likely because `ToolCallMessagePart` recursively references
+    // the `ThreadMessage` type, but I'm not entirely sure right now.
+    (content as any[]).splice(i, 0, part);
   }
 
   /**
@@ -281,6 +275,64 @@ namespace Private {
    */
   export
   function evtToolCallCompleted(evt: api.ToolCallCompletedEvent, draft: Draft): void {
-    return;
+    // Find the most recent assistant content.
+    const content = findLastAssistantContent(draft);
+
+    // Bail if the content was not found.
+    if (!content) {
+      return;
+    }
+
+    // Find the matching tool call part.
+    const part = content.find(part =>
+      part.type === 'tool-call' && part.toolCallId === evt.tool.tool_call_id
+    );
+
+    // Log an error if the part is not found.
+    if (!part) {
+      console.error(`Assistant tool call not found: ${evt.tool.tool_call_id}`);
+      return;
+    }
+
+    // We already know `type` is 'tool-call', but TS fails to fully narrow
+    // the type in the call to `find()` above, and attempting to cast to
+    // `ToolCallMessagePart` type triggers an "excessively deep type
+    // instantiation" error. I haven't found a better workaround yet.
+    if (part.type !== 'tool-call') {
+      return;
+    }
+
+    // Update the result of the tool call.
+    part.result = evt.tool.result;
+  }
+
+  /**
+   * Find the the content array for the most recent 'assistant' message.
+   *
+   * This logs an error and returns `null` if something goes wrong.
+   *
+   * The return type is complex, so it is left as automatically inferred.
+   */
+  function findLastAssistantContent(draft: Draft) {
+    // Find the most recent assistant message.
+    const msg = draft.findLast(msg => msg.role === 'assistant');
+
+    // Log an error if the message is not found.
+    if (!msg) {
+      console.error('Internal: assistant message not found');
+      return null;
+    }
+
+    // Fetch the message content.
+    const content = msg.content;
+
+    // Log an error if the content is not an array.
+    if (typeof content === 'string') {
+      console.error('Internal: unexpected message content type');
+      return null;
+    }
+
+    // Return the content array.
+    return content;
   }
 }

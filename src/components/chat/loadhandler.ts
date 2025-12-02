@@ -89,7 +89,7 @@ namespace Private {
   function createUserMessage(run: api.Run): ThreadMessageLike {
     return {
       role: 'user',
-      content: run.run_input,
+      content: [createTextPart(run.run_input)],
       createdAt: new Date(run.created_at)
     };
   }
@@ -103,10 +103,10 @@ namespace Private {
    */
   function createAssistantMessage(run: api.Run): ThreadMessageLike {
     // Create the tool call parts.
-    const tools = createToolCallParts(run);
+    const tools = (run.tools ?? []).map(createToolCallPart);
 
     // Create the text part.
-    const text = createTextPart(run);
+    const text = createTextPart(run.content);
 
     // Return the assistant message.
     return {
@@ -117,24 +117,13 @@ namespace Private {
   }
 
   /**
-   * Create the AUI tool call parts for an Agno run.
-   *
-   * @param run - The Agno api run of interest.
-   *
-   * @returns The AUI tool call parts for the run.
-   */
-  function createToolCallParts(run: api.Run): ToolCallMessagePart[] {
-    return (run.tools ?? []).map(createToolPart);
-  }
-
-  /**
    * Create an AUI tool call part from an Agno tool call.
    *
    * @param tool - The Agno api tool call.
    *
    * @returns The equivalent AUI tool call part.
    */
-  function createToolPart(tool: api.ToolCall): ToolCallMessagePart {
+  function createToolCallPart(tool: api.ToolCall): ToolCallMessagePart {
     return {
       type: 'tool-call',
       toolCallId: tool.tool_call_id,
@@ -148,11 +137,11 @@ namespace Private {
   /**
    * Create the AUI assistant text part for an Agno run.
    *
-   * @param run - The Agno api run of interest.
+   * @param content - The content for the text part.
    *
    * @returns The AUI assistant text part for the run.
    */
-  function createTextPart(run: api.Run): TextMessagePart {
-    return { type: 'text', text: run.content };
+  function createTextPart(content: string): TextMessagePart {
+    return { type: 'text', text: content };
   }
 }
