@@ -23,16 +23,10 @@ import {
 
 import * as api from "@/api";
 
-async function getMetrics(): Promise<api.MetricsResponse> {
-  const res = await fetch("/agno_metrics");
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-  return res.json() as Promise<api.MetricsResponse>;
-}
-
 export function Metrics(): ReactNode {
   const { data, isLoading, error } = useQuery({
     queryKey: ["metrics"],
-    queryFn: getMetrics,
+    queryFn: api.getMetrics,
   });
 
   const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
