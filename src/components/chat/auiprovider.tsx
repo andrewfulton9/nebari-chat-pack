@@ -26,6 +26,10 @@ import {
 } from 'react';
 
 import {
+  useChatConfig
+} from './chatconfigprovider';
+
+import {
   LoadHandler
 } from './loadhandler';
 
@@ -48,7 +52,10 @@ import {
 export
 function AUIProvider(props: AUIProvider.Props): ReactNode {
   // Extract the props.
-  const { sessionId, agentId, setSessionId, children } = props;
+  const { children } = props;
+
+  // Extract the chat config.
+  const { agentId, sessionId, setSessionId } = useChatConfig();
 
   // Create the query.
   //
@@ -68,8 +75,10 @@ function AUIProvider(props: AUIProvider.Props): ReactNode {
   });
 
   // Create the callback for running a new AUI user message.
+  //
+  // TODO handle chat types and undefined agent ids.
   const onNewCallback = useCallback(async (message: AppendMessage) => {
-    await mutateAsync({ message, sessionId, agentId, setSessionId });
+    await mutateAsync({ message, sessionId, agentId: agentId ?? 'claude', setSessionId });
   }, [sessionId, agentId, setSessionId]);
 
   // Create the runtime store adapter.
@@ -100,26 +109,6 @@ namespace AUIProvider {
    */
   export
   type Props = {
-    /**
-     * The unique id of the session (thread).
-     *
-     * If this is `undefined` a new session will be created on the first
-     * user message and `setSessionId` will be invoked.
-     *
-     * If this is provided, the session is assumed to exist on the server.
-     */
-    readonly sessionId: string | undefined;
-
-    /**
-     * The id of the agent for processing user messages.
-     */
-    readonly agentId: string;
-
-    /**
-     * A callback to set the id for a newly created session.
-     */
-    readonly setSessionId: (sessionId: string) => void;
-
     /**
      * The children for the provider.
      */
