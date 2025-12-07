@@ -117,6 +117,7 @@ namespace Private {
       <>
         <Breadcrumb.Separator>/</Breadcrumb.Separator>
         <BcSelect
+          key={ chatConfig.agentId } // key is needed to reset the control on undefined value.
           value={ chatConfig.agentId }
           setValue={ chatConfig.setAgentId }
           collection={ collection }
@@ -162,6 +163,7 @@ namespace Private {
       <>
         <Breadcrumb.Separator>/</Breadcrumb.Separator>
         <BcSelect
+          key={ chatConfig.teamId } // key is needed to reset the control on undefined value.
           value={ chatConfig.teamId }
           setValue={ chatConfig.setTeamId }
           collection={ teams }
@@ -207,6 +209,7 @@ namespace Private {
       <>
         <Breadcrumb.Separator>/</Breadcrumb.Separator>
         <BcSelect
+          key={ chatConfig.workflowId } // key is needed to reset the control on undefined value.
           value={ chatConfig.workflowId }
           setValue={ chatConfig.setWorkflowId }
           collection={ collection }
@@ -234,7 +237,7 @@ namespace Private {
     return (
       <>
         <Breadcrumb.Separator>/</Breadcrumb.Separator>
-        <Breadcrumb.Item>
+        <Breadcrumb.Item whiteSpace='nowrap' overflow='ellipsis'>
           { chatConfig.sessionId }
         </Breadcrumb.Item>
       </>
