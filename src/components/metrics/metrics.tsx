@@ -7,6 +7,10 @@ import {
 } from "@tanstack/react-query";
 
 import {
+  useMetricsConfig
+} from './metricsconfigprovider';
+
+import {
   useEffect, useState
 } from "react";
 
@@ -29,14 +33,22 @@ export function Metrics(): ReactNode {
     queryFn: api.getMetrics,
   });
 
-  const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
+  const config = useMetricsConfig();
+
+  const [selectedMonth, setSelectedMonth] = useState<Date>(() => {
+    const today = new Date();
+    return monthStart(today);
+  });
 
   // Initialize selectedMonth to the current month when data is loaded
   useEffect(() => {
-    if (!data) return;
-    const today = new Date();
-    setSelectedMonth(monthStart(today));
-  }, [data]);
+    // Only apply when URL params are present
+    if (config.month != null && config.year != null) {
+      const date = new Date(config.year, config.month - 1, 1);
+      setSelectedMonth(date);
+    }
+    // If URL params are missing, keep the current default (today)
+  }, [config.month, config.year]);
 
   if (isLoading || !data || !selectedMonth) return null;
   if (error) return null;
@@ -138,6 +150,7 @@ export function Metrics(): ReactNode {
     teamSessionsByDay,
     "sessions",
   );
+  
   const totalTeamSessions = sumMetric(
     metricsForMonth,
     (m) => m.team_sessions_count,
@@ -149,6 +162,7 @@ export function Metrics(): ReactNode {
     workflowRunsByDay,
     "runs",
   );
+
   const totalWorkflowRuns = sumMetric(
     metricsForMonth,
     (m) => m.workflow_runs_count,
@@ -160,6 +174,7 @@ export function Metrics(): ReactNode {
     workflowSessionsByDay,
     "sessions",
   );
+
   const totalWorkflowSessions = sumMetric(
     metricsForMonth,
     (m) => m.workflow_sessions_count,
@@ -190,10 +205,18 @@ export function Metrics(): ReactNode {
   function changeMonth(offset: number) {
     setSelectedMonth((prev) => {
       if (!prev) return prev;
-      const next = monthStart(
+
+      // Compute the next month date
+      let next = monthStart(
         new Date(prev.getFullYear(), prev.getMonth() + offset),
       );
-      if (next > maxMonth) return maxMonth;
+
+      // Sync URL query params with the new month/year
+      const nextMonth = next.getMonth() + 1;
+      const nextYear = next.getFullYear();
+
+      config.setDate(nextMonth, nextYear);
+
       return next;
     });
   }

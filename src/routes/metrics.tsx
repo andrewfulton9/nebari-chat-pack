@@ -6,22 +6,61 @@ import {
 } from '@tanstack/react-router';
 
 import {
-  Metrics
+  useCallback
+} from 'react';
+
+
+import {
+  Metrics,
+  MetricsConfigProvider,
+  type MetricsConfig
 } from '@/components/metrics';
 
 import * as v from 'valibot';
 
-const
-routeSearchSchema = v.object({
-  agent_id: v.optional(v.string()),
+/**
+ * The schema for the route search params.
+ */
+const routeSearchSchema = v.object({
+  month: v.optional(v.number()),
+  year: v.optional(v.number()),
 });
 
+/**
+ * The route for the `/metrics` endpoint.
+ */
 export
 const Route = createFileRoute('/metrics')({
-  component: RouteComponent,
   validateSearch: routeSearchSchema,
+  component: RouteComponent
 });
 
+/**
+ * The component that renders the `/metrics` route.
+ */
 function RouteComponent() {
-  return <Metrics />;
+  // Fetch the search parameters.
+  const { month, year } = Route.useSearch();
+
+  // Fetch the navigator.
+  const navigate = Route.useNavigate();
+
+  // Create the callback for setting the `month` and `year` search params.
+  const setDate = useCallback((month: number, year: number) => {
+    navigate({ search: { month,year } });
+  }, []);
+
+  // Create the metrics context.
+  const context: MetricsConfig = {
+    month,
+    year,
+    setDate
+  };  
+
+  // Return the rendered component.
+  return (
+    <MetricsConfigProvider value={ context }>
+      <Metrics />
+    </MetricsConfigProvider>
+  )  
 }
