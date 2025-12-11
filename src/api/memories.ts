@@ -25,7 +25,7 @@ export const MetaSchema = v.object({
   search_time_ms: v.number(),
 });
 
-export const MemoriesResponse = v.object({
+export const MemoriesResponseSchema = v.object({
   data: v.array(MemoryItem),
   meta: MetaSchema,
 });
@@ -35,7 +35,7 @@ export const MemoriesResponse = v.object({
  * A type alias for Agno metrics.
  */
 export
-type MemoriesResponse = v.InferOutput<typeof MemoriesResponse>;
+type MemoriesResponse = v.InferOutput<typeof MemoriesResponseSchema>;
 
 export
 type MemoryItem = v.InferOutput<typeof MemoryItem>;
@@ -50,7 +50,9 @@ async function getMemories(): Promise<MemoriesResponse> {
     throw new Error(`Response: ${res.status} ${res.statusText}`);
   }
 
-  return res.json() as Promise<MemoriesResponse>;
+  const json = res.json();
+
+  return v.parse(MemoriesResponseSchema, json);
 }
 
 export async function deleteMemories(ids: string[]): Promise<void> {
