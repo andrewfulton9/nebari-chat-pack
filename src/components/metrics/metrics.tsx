@@ -1,3 +1,6 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) 2025-present, OpenTeams Inc.
+|----------------------------------------------------------------------------*/
 import type {
   ReactNode
 } from "react";
@@ -26,6 +29,10 @@ import {
 } from "./";
 
 import * as api from "@/api";
+
+import {
+  MetricsChart
+} from './metricschart';
 
 export function Metrics(): ReactNode {
   const { data, isLoading, error } = useQuery({
@@ -215,7 +222,7 @@ export function Metrics(): ReactNode {
       const nextMonth = next.getMonth() + 1;
       const nextYear = next.getFullYear();
 
-      config.setDate(nextMonth, nextYear);
+      config.update({ month: nextMonth, year: nextYear });
 
       return next;
     });
@@ -329,6 +336,16 @@ export function Metrics(): ReactNode {
             data={modelRunsData}
             series={modelRunsSeries}
           />
+
+          <MetricsChart
+            title='Sample'
+            description='Sample description'
+            total={undefined}
+            config={{
+              type: 'bar',
+              data: usersData,
+              series:[{ key: "users", label: "Users" }]
+            }}/>
         </div>
       </div>
     </main>

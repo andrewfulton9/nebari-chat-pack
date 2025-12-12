@@ -1,3 +1,6 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) 2025-present, OpenTeams Inc.
+|----------------------------------------------------------------------------*/
 import type * as api from "@/api";
 
 export type MetricRow = api.MetricsResponse["metrics"][number];

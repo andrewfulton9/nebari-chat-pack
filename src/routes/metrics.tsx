@@ -9,14 +9,16 @@ import {
   useCallback
 } from 'react';
 
+import * as v from 'valibot';
 
-import {
-  Metrics,
-  MetricsConfigProvider,
-  type MetricsConfig
+import type {
+  MetricsConfig, MetricsConfigUpdateOptions
 } from '@/components/metrics';
 
-import * as v from 'valibot';
+import {
+  Metrics, MetricsConfigProvider
+} from '@/components/metrics';
+
 
 /**
  * The schema for the route search params.
@@ -26,6 +28,7 @@ const routeSearchSchema = v.object({
   year: v.optional(v.number()),
 });
 
+
 /**
  * The route for the `/metrics` endpoint.
  */
@@ -34,6 +37,7 @@ const Route = createFileRoute('/metrics')({
   validateSearch: routeSearchSchema,
   component: RouteComponent
 });
+
 
 /**
  * The component that renders the `/metrics` route.
@@ -45,22 +49,18 @@ function RouteComponent() {
   // Fetch the navigator.
   const navigate = Route.useNavigate();
 
-  // Create the callback for setting the `month` and `year` search params.
-  const setDate = useCallback((month: number, year: number) => {
-    navigate({ search: { month,year } });
+  // Create the callback for updating the config.
+  const update = useCallback((options: MetricsConfigUpdateOptions) => {
+    navigate({ search: { ...options } });
   }, []);
 
   // Create the metrics context.
-  const context: MetricsConfig = {
-    month,
-    year,
-    setDate
-  };  
+  const context: MetricsConfig = { month, year, update };
 
   // Return the rendered component.
   return (
     <MetricsConfigProvider value={ context }>
       <Metrics />
     </MetricsConfigProvider>
-  )  
+  );
 }
