@@ -29,7 +29,7 @@ function ChartCard(props: ChartCard.Props): ReactNode {
 
   // Setup the effect to create the chart.
   useEffect(() => {
-    // Fetch the chart container.
+    // Fetch the chart container node.
     const node = ref.current!;
 
     // Initialize the chart.
@@ -39,7 +39,10 @@ function ChartCard(props: ChartCard.Props): ReactNode {
     chart.setOption(option);
 
     // Create the resize observer.
-    const observer = new ResizeObserver(() => { chart.resize(); });
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      chart.resize({ width, height });
+    });
 
     // Observe the chart container.
     observer.observe(node);
@@ -56,7 +59,7 @@ function ChartCard(props: ChartCard.Props): ReactNode {
 
   // Return the rendered component.
   return (
-    <Card className='min-h-80'>
+    <Card className='min-w-0 min-h-80 rounded-sm'>
       <CardHeader>
         <CardTitle>
           { title }
@@ -65,9 +68,7 @@ function ChartCard(props: ChartCard.Props): ReactNode {
           { description }
         </CardDescription>
       </CardHeader>
-      <CardContent className='grow'>
-        <div className='w-full h-full' ref={ ref } />
-      </CardContent>
+      <CardContent className='grow min-h-0' ref={ ref } />
     </Card>
   );
 }
@@ -90,17 +91,19 @@ namespace ChartCard {
   export
   type Props = {
     /**
-     *
+     * The title for the card.
      */
     readonly title: string;
 
     /**
-     *
+     * The description for the card.
      */
     readonly description: string;
 
     /**
-     * The title for the chart card.
+     * The echarts option for defining the chart.
+     *
+     * If this is not provided, a "no data" placeholder will be used.
      */
     readonly option: Option;
   };

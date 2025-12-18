@@ -3,7 +3,7 @@
 |----------------------------------------------------------------------------*/
 import type {
   ReactNode
-} from "react";
+} from 'react';
 
 import {
   cn
@@ -16,6 +16,10 @@ import {
 import {
   ModelRunsChart
 } from './models';
+
+import {
+  MonthSelector
+} from './monthselector';
 
 import {
   TeamRunsChart, TeamSessionsChart
@@ -43,10 +47,18 @@ import {
 export
 function Metrics(): ReactNode {
   return (
-    <main className='h-full w-full p-5'>
+    <main className='grow flex flex-col'>
       <div className={ cn(
-        'h-full grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3',
-        'gap-2 auto-rows-[1fr] overflow-y-auto') }>
+        'px-4 py-2 flex flex-row gap-4 items-center justify-between',
+        'border-b border-bd-neutral-default') }>
+        <h2 className='text-lg font-semibold'>
+          Metrics
+        </h2>
+        <MonthSelector />
+      </div>
+      <div className={ cn(
+        'p-4 grow min-h-0 overflow-y-auto grid gap-4 auto-rows-[1fr]',
+        'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3') }>
         <TokensChart />
         <UsersChart />
         <AgentRunsChart />

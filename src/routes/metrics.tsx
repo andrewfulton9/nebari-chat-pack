@@ -42,6 +42,8 @@ const currentYear = today.getFullYear();
 
 /**
  * The schema for the route search params.
+ *
+ * TODO - handle min/max year/month clamping.
  */
 const routeSearchSchema = v.object({
   month: v.fallback(v.number(), currentMonth),
