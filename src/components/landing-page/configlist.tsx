@@ -37,7 +37,7 @@ function ConfigList(props: DropdownArea.Props): ReactNode {
         <ConfigListItem
           name={item.name}
           chatLink={`/chat?type=${type}&id=${item.id}`}
-          configLink={`config?type=${type}s&id=${item.id}`}
+          configLink={`config?type=${type}&id=${item.id}`}
         />
       ))}
     </div>

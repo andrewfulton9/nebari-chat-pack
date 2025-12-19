@@ -22,9 +22,9 @@ import * as api from '@/api';
  */
 const baseSchema = v.object({
   type: v.union([
-    v.literal("agents"),
-    v.literal("teams"),
-    v.literal("workflows"),
+    v.literal("agent"),
+    v.literal("team"),
+    v.literal("workflow"),
   ]),
   id: v.string(),
 });
@@ -64,10 +64,13 @@ function RouteComponent() {
   // Fetch config from the __root
   const config = Route.useLoaderData();
 
+  // Fetch the type to be used for routing from the config page
+  const {type} = Route.useSearch();
+
   // Return the rendered component.
   return (
     <ConfigContext value={ config }>
-      <ConfigDetails/>
+      <ConfigDetails type={type}/>
     </ConfigContext>
   );
 }

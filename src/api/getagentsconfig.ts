@@ -129,7 +129,7 @@ type AgentConfig = v.InferOutput<typeof agentConfigSchema>;
 export
 async function getAgentsConfig(type: string, id: string): Promise<any> {
   // Fetch the resource.
-  const resp = await fetch(`/${type}/${id}`);
+  const resp = await fetch(`/${type}s/${id}`);
 
   // Guard against request failure.
   if (!resp.ok) {
@@ -138,7 +138,6 @@ async function getAgentsConfig(type: string, id: string): Promise<any> {
 
   // Convert the response to json.
   const json = await resp.json();
-  console.log(json)
 
   // Parse and return the response.
   return v.parse(agentConfigSchema, json);
