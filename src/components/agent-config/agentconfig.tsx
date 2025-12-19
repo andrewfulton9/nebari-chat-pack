@@ -19,7 +19,7 @@ export function ConfigDetails(): ReactNode {
 
   // Return rendered component
   return (
-    <main className="w-full">
+    <main className="w-full overflow-y-scroll">
       <h2 className="m-5 text-xl font-bold">{data.name}</h2>
 
       <div className="w-1/3 mx-auto">

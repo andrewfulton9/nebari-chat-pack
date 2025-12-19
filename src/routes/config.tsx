@@ -53,7 +53,7 @@ export
 const Route = createFileRoute('/config')({
   validateSearch: baseSchema,
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => loadConfig(context.queryClient, deps.type, deps.id),
+  loader: ({ context, deps }) => loadConfig(context.client, deps.type, deps.id),
   component: RouteComponent,
 });
 
