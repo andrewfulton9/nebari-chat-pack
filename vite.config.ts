@@ -47,7 +47,12 @@ export default defineConfig({
         target: 'http://localhost:7777',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/agno_config/, '/config'),
-      }
+      },
+      '/agno_memory': {
+        target: 'http://localhost:7777',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/agno_memory/, '/memories'),
+      },
     }
   }
 });
