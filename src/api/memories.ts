@@ -7,7 +7,8 @@ import * as v from 'valibot';
 /**
  * A schema for Agno memories.
  */
-export const MemoryItem = v.object({
+export
+const memoryItemSchema = v.object({
   memory_id: v.string(),
   memory: v.string(),
   topics: v.array(v.string()),
@@ -17,7 +18,19 @@ export const MemoryItem = v.object({
   updated_at: v.string(),
 });
 
-export const MetaSchema = v.object({
+
+/**
+ *
+ */
+export
+type MemoryItem = v.InferOutput<typeof memoryItemSchema>;
+
+
+/**
+ *
+ */
+export
+const memoriesMetaSchema = v.object({
   page: v.number(),
   limit: v.number(),
   total_pages: v.number(),
@@ -25,9 +38,21 @@ export const MetaSchema = v.object({
   search_time_ms: v.number(),
 });
 
-export const MemoriesResponseSchema = v.object({
-  data: v.array(MemoryItem),
-  meta: MetaSchema,
+
+/**
+ *
+ */
+export
+type MemoriesMeta = v.InferOutput<typeof memoriesMetaSchema>;
+
+
+/**
+ *
+ */
+export
+const memoriesSchema = v.object({
+  data: v.array(memoryItemSchema),
+  meta: memoriesMetaSchema,
 });
 
 
@@ -35,13 +60,14 @@ export const MemoriesResponseSchema = v.object({
  * A type alias for Agno metrics.
  */
 export
-type MemoriesResponse = v.InferOutput<typeof MemoriesResponseSchema>;
+type Memories = v.InferOutput<typeof memoriesSchema>;
 
-export
-type MemoryItem = v.InferOutput<typeof MemoryItem>;
 
+/**
+ *
+ */
 export
-async function getMemories(): Promise<MemoriesResponse> {
+async function getMemories(): Promise<Memories> {
   const url = '/agno_memory';
 
   const res = await fetch(url);
@@ -52,19 +78,5 @@ async function getMemories(): Promise<MemoriesResponse> {
 
   const json = await res.json();
 
-  return v.parse(MemoriesResponseSchema, json);
-}
-
-export async function deleteMemories(ids: string[]): Promise<void> {
-  for (const id of ids) {
-    const url = `/agno_memory/${id}`;
-
-    const res = await fetch(url, {
-      method: "DELETE",
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to delete memory ${id}: ${res.status} ${res.statusText}`);
-    }
-  }
+  return v.parse(memoriesSchema, json);
 }

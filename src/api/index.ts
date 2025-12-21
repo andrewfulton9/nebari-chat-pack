@@ -3,6 +3,7 @@
 |----------------------------------------------------------------------------*/
 export * from './createagentrun';
 export * from './createsession';
+export * from './deletememories';
 export * from './getconfig';
 export * from './getmetrics';
 export * from './getsessionruns';
