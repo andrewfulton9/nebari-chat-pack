@@ -73,7 +73,7 @@ type Memories = v.InferOutput<typeof memoriesSchema>;
 export
 async function getMemories(): Promise<Memories> {
   // Fetch the resource.
-  const resp = await fetch('/agno_memory');
+  const resp = await fetch('/api/memories');
 
   // Guard against fetch failure.
   if (!resp.ok) {

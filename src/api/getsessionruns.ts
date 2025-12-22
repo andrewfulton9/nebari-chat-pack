@@ -61,7 +61,7 @@ type SessionRun = v.InferOutput<typeof sessionRunSchema>;
 export
 async function getSessionRuns(session_id: string): Promise<SessionRun[]> {
   // Make the fetch request.
-  const resp = await fetch(`/agno_sessions/${session_id}/runs`);
+  const resp = await fetch(`/api/sessions/${session_id}/runs`);
 
   // Guard against request failure.
   if (!resp.ok) {
