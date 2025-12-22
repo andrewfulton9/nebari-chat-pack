@@ -21,38 +21,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/agents': {
-        target: 'http://localhost:7777',
-        changeOrigin: true
-      },
-      '/teams': {
-        target: 'http://localhost:7777',
-        changeOrigin: true
-      },
-      '/workflows': {
-        target: 'http://localhost:7777',
-        changeOrigin: true
-      },
-      '/agno_sessions': {
+      '/api': {
         target: 'http://localhost:7777',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/agno_sessions/, '/sessions'),
-      },
-      '/agno_metrics': {
-        target: 'http://localhost:7777',
-        changeOrigin: false,
-        rewrite: (path) => path.replace(/^\/agno_metrics/, '/metrics'),
-      },
-      '/agno_config': {
-        target: 'http://localhost:7777',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/agno_config/, '/config'),
-      },
-      '/agno_memory': {
-        target: 'http://localhost:7777',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/agno_memory/, '/memories'),
-      },
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
     }
   }
 });

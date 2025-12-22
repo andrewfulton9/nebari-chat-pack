@@ -129,7 +129,7 @@ type AgentConfig = v.InferOutput<typeof agentConfigSchema>;
 export
 async function getAgentsConfig(type: string, id: string): Promise<any> {
   // Fetch the resource.
-  const resp = await fetch(`/${type}s/${id}`);
+  const resp = await fetch(`/api/${type}s/${id}`);
 
   // Guard against request failure.
   if (!resp.ok) {

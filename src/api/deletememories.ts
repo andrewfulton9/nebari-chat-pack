@@ -13,7 +13,7 @@
 export
 async function deleteMemories(ids: readonly string[]): Promise<void> {
   // Create the request.
-  const resp = await fetch('/agno_memory', {
+  const resp = await fetch('/api/memories', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ memory_ids: ids })

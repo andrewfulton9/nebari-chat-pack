@@ -115,7 +115,7 @@ async function getMetrics(options: getMetrics.Options): Promise<Metrics> {
   }
 
   // Fetch the resource.
-  const resp = await fetch(`/agno_metrics?${params}`);
+  const resp = await fetch(`/api/metrics?${params}`);
 
   // Guard against fetch failure.
   if (!resp.ok) {

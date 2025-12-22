@@ -224,7 +224,7 @@ async function *createAgentRun(
   }
 
   // Fetch the endpoint.
-  const resp = await fetch(`/agents/${agent_id}/runs`, {
+  const resp = await fetch(`/api/agents/${agent_id}/runs`, {
     method: 'POST', body: fd
   });
 
