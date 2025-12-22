@@ -5,7 +5,7 @@ export * from './createagentrun';
 export * from './createsession';
 export * from './deletememories';
 export * from './getconfig';
+export * from './getmemories';
 export * from './getmetrics';
 export * from './getsessionruns';
-export * from './memories';
 export * from './tools';

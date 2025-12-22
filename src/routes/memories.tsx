@@ -39,11 +39,6 @@ const Route = createFileRoute('/memories')({
 
 /**
  * The component that renders the `/memories` route.
- *
- * TODO - I'm not sure that the interaction between the tanstack router
- *   caching and the tanstack query fetches are working correctly. I need
- *   to look into this further. The `Route` loader is outside of React
- *   hooks, so the SWR of tanstack query might not be working correctly.
  */
 function RouteComponent() {
   // Fetch the router for the current endpoint.

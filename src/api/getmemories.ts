@@ -5,7 +5,7 @@ import * as v from 'valibot';
 
 
 /**
- * A schema for Agno memories.
+ * A schema for an Agno memory item.
  */
 export
 const memoryItemSchema = v.object({
@@ -20,14 +20,14 @@ const memoryItemSchema = v.object({
 
 
 /**
- *
+ * A type alias for an Agno memory item.
  */
 export
 type MemoryItem = v.InferOutput<typeof memoryItemSchema>;
 
 
 /**
- *
+ * A schema for Agno memory metadata.
  */
 export
 const memoriesMetaSchema = v.object({
@@ -40,14 +40,14 @@ const memoriesMetaSchema = v.object({
 
 
 /**
- *
+ * A type alias for Agno memory metadata.
  */
 export
 type MemoriesMeta = v.InferOutput<typeof memoriesMetaSchema>;
 
 
 /**
- *
+ * A schema for Agno memories.
  */
 export
 const memoriesSchema = v.object({
@@ -57,26 +57,32 @@ const memoriesSchema = v.object({
 
 
 /**
- * A type alias for Agno metrics.
+ * A type alias for Agno memories.
  */
 export
 type Memories = v.InferOutput<typeof memoriesSchema>;
 
 
 /**
+ * A function which fetches the agno memories.
  *
+ * @returns A promise that resolves with the memories request.
+ *
+ * TODO add query options supported by Agno.
  */
 export
 async function getMemories(): Promise<Memories> {
-  const url = '/agno_memory';
+  // Fetch the resource.
+  const resp = await fetch('/agno_memory');
 
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    throw new Error(`Response: ${res.status} ${res.statusText}`);
+  // Guard against fetch failure.
+  if (!resp.ok) {
+    throw new Error(`Response: ${resp.status} ${resp.statusText}`);
   }
 
-  const json = await res.json();
+  // Convert the response to JSON.
+  const json = await resp.json();
 
+  // Return the parsed result.
   return v.parse(memoriesSchema, json);
 }

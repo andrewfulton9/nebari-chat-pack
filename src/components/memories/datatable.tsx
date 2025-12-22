@@ -51,24 +51,6 @@ function DataTable(): ReactNode {
     getCoreRowModel: getCoreRowModel()
   });
 
-  // // Clears all selected rows.
-  // function handleClearSelection() {
-  //   table.resetRowSelection();
-  // }
-
-  // async function handleDeleteSelection() {
-  //   if (!onDeleteSelected || !selectedRows.length) return;
-
-  //   setDeleting(true);
-  //   try {
-  //     const originals = selectedRows.map(r => r.original as TData);
-  //     await onDeleteSelected(originals);
-  //     table.resetRowSelection();
-  //   } finally {
-  //     setDeleting(false);
-  //   }
-  // }
-
   // Create the array to hold the header rows.
   const headerRows: ReactNode[] = [];
 
@@ -217,7 +199,7 @@ namespace Private {
           { topic }
         </span>
       ));
-      return <div className="flex flex-wrap gap-1">{ spans }</div>;
+      return <div className='flex flex-wrap gap-1'>{ spans }</div>;
     },
   });
 
@@ -229,7 +211,7 @@ namespace Private {
     cell: cellContext => {
       const date = new Date(cellContext.getValue());
       return (
-        <span className="whitespace-nowrap text-xs text-muted-foreground">
+        <span className='whitespace-nowrap text-xs text-muted-foreground'>
           { date.toLocaleString() }
         </span>
       );
@@ -266,7 +248,7 @@ namespace Private {
     // Extract the props.
     const { table } = props;
 
-    //
+    // Fetch the memories config.
     const { deleteMemories } = useMemoriesConfig();
 
     // Fetch the needed info from the table.
@@ -285,7 +267,7 @@ namespace Private {
     };
 
     // Create the callback to handle deleting the selection.
-    const handleDelete = async () => {
+    const handleDelete = () => {
       // Fetch the ids of the memories to delete.
       const rows = table.getSelectedRowModel().rows;
       const ids = rows.map(row => row.original.memory_id);
@@ -294,7 +276,7 @@ namespace Private {
       table.resetRowSelection();
 
       // Delete the memories on the server.
-      await deleteMemories(ids);
+      deleteMemories(ids);
     };
 
     // Return the rendered component.
@@ -303,7 +285,7 @@ namespace Private {
         'fixed bottom-4 flex flex-row justify-self-center items-center gap-4',
         'rounded-sm border px-4 py-2 shadow-lg z-1 bg-bg-white') }>
         <div>
-          <span className="font-medium text-foreground mr-1">
+          <span className='font-medium text-foreground'>
             { selectedRowCount }
           </span>
           <span className='text-muted-foreground'>
@@ -316,7 +298,7 @@ namespace Private {
             variant='ghost'
             size='sm'
             onClick={ handleClear }>
-            Clear selection
+            Clear Selection
           </Button>
           <Button
             className='rounded-sm cursor-pointer'
