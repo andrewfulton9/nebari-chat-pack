@@ -28,9 +28,9 @@ import {
 export
 function Chat(): ReactNode {
   return (
-    <Stack width='100%' gap={0}>
+    <Stack width='100%' gap={ 0 }>
       <Breadcrumbs />
-      <Box minW={0} minH={0} flexGrow={1}>
+      <Box minW={ 0 } minH={ 0 } flexGrow={ 1 }>
         <AUIProvider>
           <Thread />
         </AUIProvider>

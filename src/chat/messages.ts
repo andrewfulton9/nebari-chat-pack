@@ -250,7 +250,7 @@ namespace Private {
    *
    * @returns An array of AUI thread messages for the run.
    */
-  function convertRun(run: api.Run): ThreadMessageLike[] {
+  function convertRun(run: api.SessionRun): ThreadMessageLike[] {
     // Create the user message.
     const user = createUserMessage(run);
 
@@ -268,7 +268,7 @@ namespace Private {
    *
    * @returns The AUI user message for the run.
    */
-  function createUserMessage(run: api.Run): ThreadMessageLike {
+  function createUserMessage(run: api.SessionRun): ThreadMessageLike {
     return {
       role: 'user',
       content: [createTextPart(run.run_input)],
@@ -283,7 +283,7 @@ namespace Private {
    *
    * @returns The AUI assistant message for the run.
    */
-  function createAssistantMessage(run: api.Run): ThreadMessageLike {
+  function createAssistantMessage(run: api.SessionRun): ThreadMessageLike {
     // Create the tool call parts.
     const tools = (run.tools ?? []).map(createToolCallPart);
 

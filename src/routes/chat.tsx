@@ -13,15 +13,15 @@ import * as v from 'valibot';
 
 import type {
   ChatConfig, ChatConfigUpdateOptions
-} from '@/components/chat';
+} from '@/chat';
 
 import {
   Chat, ChatConfigProvider
-} from '@/components/chat';
+} from '@/chat';
 
 import {
   useConfig
-} from '@/components/common';
+} from '@/config';
 
 
 // The schema for the agent search params
