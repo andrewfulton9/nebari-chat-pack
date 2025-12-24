@@ -17,11 +17,11 @@ import * as api from '@/api';
 
 import {
   ConfigProvider
-} from '@/components/common';
+} from '@/config';
 
 import {
   Sidebar
-} from '@/components/sidebar';
+} from '@/sidebar';
 
 
 /**

@@ -19,7 +19,7 @@ import type {
 
 import {
   useConfig
-} from '@/components/common';
+} from '@/config';
 
 import type {
   ChatType
@@ -39,7 +39,7 @@ export
 function Breadcrumbs(): ReactNode {
   return (
     <Breadcrumb.Root
-      padding={2}
+      padding={ 2 }
       borderBottom='1px solid var(--color-bd-neutral-default)'>
       <Breadcrumb.List>
         <Private.BcSelect />

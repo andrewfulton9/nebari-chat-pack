@@ -15,11 +15,11 @@ import * as api from '@/api';
 
 import type {
   MetricsConfig, MetricsConfigUpdateOptions
-} from '@/components/metrics';
+} from '@/metrics';
 
 import {
   Metrics, MetricsConfigProvider
-} from '@/components/metrics';
+} from '@/metrics';
 
 
 /**

@@ -11,7 +11,7 @@ import type {
 
 import {
   useConfig
-} from '@/components/common';
+} from '@/config';
 
 import {
   LinkCard

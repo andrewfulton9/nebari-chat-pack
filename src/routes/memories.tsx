@@ -9,11 +9,11 @@ import * as api from '@/api';
 
 import type {
   MemoriesConfig
-} from '@/components/memories';
+} from '@/memories';
 
 import {
   Memories, MemoriesConfigProvider
-} from '@/components/memories';
+} from '@/memories';
 
 
 /**
