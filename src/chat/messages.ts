@@ -194,37 +194,23 @@ namespace Private {
     // Extract the query client.
     const client = context.client;
 
-    // Extract the session id.
-    let sessionId = config.sessionId;
-
-    // Create a new session, if needed.
-    if (sessionId === undefined) {
-      // Create a new session on the server.
-      const resp = await api.createSession();
-
-      // Extract the session id from the response.
-      sessionId = resp.session_id;
-
-      // Initialize the query cache for the new session.
-      client.setQueryData(createQueryKey(sessionId), []);
-    }
-
-    // Ensure the chat config is synchronized with the session.
-    config.update({ type: config.type, id: config.id, sessionId });
+    // Extract or create the session id.
+    const sessionId = config.sessionId ?? crypto.randomUUID();
 
     // Create the query key for the run.
     const queryKey = createQueryKey(sessionId);
 
+    // Ensure the chat config is synchronized with the session.
+    config.update({ type: config.type, id: config.id, sessionId });
+
     // Initialize the cache with the user message.
     client.setQueryData<ThreadMessageLike[]>(
       queryKey,
-      produce(draft => {
-        draft!.push({
-          role: 'user',
-          content: [{ type: 'text', text: part.text }],
-          createdAt: message.createdAt
-        });
-      })
+      prev => [...(prev ?? []), {
+        role: 'user',
+        content: [{ type: 'text', text: part.text }],
+        createdAt: message.createdAt
+      }]
     );
 
     // Set up the event stream for the Agno API.
