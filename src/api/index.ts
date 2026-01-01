@@ -9,4 +9,5 @@ export * from './getmemories';
 export * from './getmetrics';
 export * from './getsessions';
 export * from './getsessionruns';
+export * from './listsessions';
 export * from './tools';
