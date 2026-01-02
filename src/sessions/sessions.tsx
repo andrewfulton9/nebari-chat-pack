@@ -10,6 +10,10 @@ import {
 } from '@/lib/utils';
 
 import {
+  SessionDetail
+} from './sessiondetail';
+
+import {
   SessionsTable
 } from './sessionstable';
 
@@ -17,12 +21,20 @@ import {
   TypeSelector
 } from './typeselector';
 
+import {
+  useSessionsConfig
+} from './configprovider';
+
 
 /**
- * A React component that renders session history.
+ * A React component that renders the session history page.
  */
 export
 function Sessions(): ReactNode {
+  // Extract the detail from the config.
+  const { detail } = useSessionsConfig();
+
+  // Return the rendered component.
   return (
     <main className='grow flex flex-col'>
       <div className={ cn(
@@ -33,8 +45,9 @@ function Sessions(): ReactNode {
         </h2>
         <TypeSelector />
       </div>
-      <div className='p-4 grow min-h-0 overflow-y-auto'>
+      <div className={ `grow grid grid-flow-col auto-cols-fr min-h-0` }>
         <SessionsTable />
+        { detail ? <SessionDetail detail={ detail } /> : null }
       </div>
     </main>
   );

@@ -110,14 +110,14 @@ const Route = createFileRoute('/sessions/{-$sessionId}')({
     const sessions = await listSessions(client, type);
 
     // Fetch the session detail, if needed.
-    const sessionDetail = (
+    const detail = (
       sessionId !== undefined ?
       await getSession(client, type, sessionId) :
       null
     );
 
     // Return the loader data.
-    return { type, sessions, sessionDetail };
+    return { type, sessions, detail };
   }
 });
 
@@ -130,7 +130,7 @@ function RouteComponent() {
   const router = useRouter();
 
   // Fetch the loader data.
-  const { type, sessions, sessionDetail } = Route.useLoaderData();
+  const { type, sessions, detail } = Route.useLoaderData();
 
   // Create the handler for deleting sessions.
   const deleteSessions = async (ids: readonly string[]) => {
@@ -143,7 +143,7 @@ function RouteComponent() {
 
   // Create the sessions config.
   const config: SessionsConfig = {
-    type, sessions, sessionDetail, deleteSessions
+    type, sessions, detail, deleteSessions
   };
 
   // Return the rendered component.

@@ -114,16 +114,18 @@ function SessionsTable(): ReactNode {
 
   // Return the rendered component.
   return (
-    <div className='rounded-xs border border-border'>
-      <Table>
-        <TableHeader>
-          { headerRows }
-        </TableHeader>
-        <TableBody>
-          { bodyRows }
-        </TableBody>
-      </Table>
-      <Private.ClearDeleteBar table={ table } />
+    <div className='p-4 overflow-y-auto'>
+      <div className='rounded-sm border border-border'>
+        <Table>
+          <TableHeader>
+            { headerRows }
+          </TableHeader>
+          <TableBody>
+            { bodyRows }
+          </TableBody>
+        </Table>
+        <Private.ClearDeleteBar table={ table } />
+      </div>
     </div>
   );
 }

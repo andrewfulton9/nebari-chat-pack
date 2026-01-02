@@ -25,8 +25,10 @@ type SessionsConfig = {
 
   /**
    * The details for the currently selected session.
+   *
+   * This will be null if there is no selected session.
    */
-  readonly sessionDetail: api.SessionDetail | null;
+  readonly detail: api.SessionDetail | null;
 
   /**
    * A function that deletes the provided sessions by id.
