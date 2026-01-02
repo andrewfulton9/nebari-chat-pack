@@ -133,7 +133,7 @@ namespace Private {
         inactiveProps={ inactiveProps }
         className={ cn(
         'h-9 px-1 flex flex-row gap-2 items-center',
-        'rounded-xs whitespace-nowrap overflow-hidden') }>
+        'rounded-sm whitespace-nowrap overflow-hidden') }>
         <span className='flex-none w-6'>{ icon }</span>
         <span className={ collapsed ? 'hidden' : '' }>{ text }</span>
       </Link>

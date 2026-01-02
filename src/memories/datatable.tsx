@@ -110,7 +110,7 @@ function DataTable(): ReactNode {
 
   // Return the rendered component.
   return (
-    <div className='rounded-xs border border-border'>
+    <div className='rounded-sm border border-border'>
       <Table>
         <TableHeader>
           { headerRows }
