@@ -77,7 +77,8 @@ function DataTable(): ReactNode {
           key={ header.id }
           className={ classNames[header.id] }>
           { content }
-        </TableHead>);
+        </TableHead>
+      );
     }
 
     // Create and add the header row.
