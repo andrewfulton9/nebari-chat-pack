@@ -56,7 +56,9 @@ type Config = v.InferOutput<typeof configSchema>;
 export
 async function getConfig(): Promise<Config> {
   // Fetch the resource.
-  const resp = await fetch('/api/config');
+  const resp = await fetch('/api/config', {
+    credentials: 'include',
+  });
 
   // Guard against request failure.
   if (!resp.ok) {

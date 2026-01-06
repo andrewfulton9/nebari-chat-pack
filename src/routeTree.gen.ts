@@ -9,153 +9,206 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root';
-import { Route as SessionsRouteImport } from './routes/sessions';
-import { Route as MetricsRouteImport } from './routes/metrics';
-import { Route as MemoriesRouteImport } from './routes/memories';
-import { Route as KnowledgeRouteImport } from './routes/knowledge';
-import { Route as ChatRouteImport } from './routes/chat';
-import { Route as IndexRouteImport } from './routes/index';
+import { Route as LoginRouteImport } from './routes/login';
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated';
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index';
+import { Route as AuthenticatedSessionsRouteImport } from './routes/_authenticated/sessions';
+import { Route as AuthenticatedMetricsRouteImport } from './routes/_authenticated/metrics';
+import { Route as AuthenticatedMemoriesRouteImport } from './routes/_authenticated/memories';
+import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated/knowledge';
+import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat';
 
-const SessionsRoute = SessionsRouteImport.update({
-  id: '/sessions',
-  path: '/sessions',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any);
-const MetricsRoute = MetricsRouteImport.update({
-  id: '/metrics',
-  path: '/metrics',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any);
-const MemoriesRoute = MemoriesRouteImport.update({
-  id: '/memories',
-  path: '/memories',
-  getParentRoute: () => rootRouteImport,
-} as any);
-const KnowledgeRoute = KnowledgeRouteImport.update({
-  id: '/knowledge',
-  path: '/knowledge',
-  getParentRoute: () => rootRouteImport,
-} as any);
-const ChatRoute = ChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => rootRouteImport,
-} as any);
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
+const AuthenticatedSessionsRoute = AuthenticatedSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
+const AuthenticatedMetricsRoute = AuthenticatedMetricsRouteImport.update({
+  id: '/metrics',
+  path: '/metrics',
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
+const AuthenticatedMemoriesRoute = AuthenticatedMemoriesRouteImport.update({
+  id: '/memories',
+  path: '/memories',
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
+const AuthenticatedKnowledgeRoute = AuthenticatedKnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
+const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthenticatedRoute,
 } as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute;
-  '/chat': typeof ChatRoute;
-  '/knowledge': typeof KnowledgeRoute;
-  '/memories': typeof MemoriesRoute;
-  '/metrics': typeof MetricsRoute;
-  '/sessions': typeof SessionsRoute;
+  '/login': typeof LoginRoute;
+  '/chat': typeof AuthenticatedChatRoute;
+  '/knowledge': typeof AuthenticatedKnowledgeRoute;
+  '/memories': typeof AuthenticatedMemoriesRoute;
+  '/metrics': typeof AuthenticatedMetricsRoute;
+  '/sessions': typeof AuthenticatedSessionsRoute;
+  '/': typeof AuthenticatedIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute;
-  '/chat': typeof ChatRoute;
-  '/knowledge': typeof KnowledgeRoute;
-  '/memories': typeof MemoriesRoute;
-  '/metrics': typeof MetricsRoute;
-  '/sessions': typeof SessionsRoute;
+  '/login': typeof LoginRoute;
+  '/chat': typeof AuthenticatedChatRoute;
+  '/knowledge': typeof AuthenticatedKnowledgeRoute;
+  '/memories': typeof AuthenticatedMemoriesRoute;
+  '/metrics': typeof AuthenticatedMetricsRoute;
+  '/sessions': typeof AuthenticatedSessionsRoute;
+  '/': typeof AuthenticatedIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
-  '/': typeof IndexRoute;
-  '/chat': typeof ChatRoute;
-  '/knowledge': typeof KnowledgeRoute;
-  '/memories': typeof MemoriesRoute;
-  '/metrics': typeof MetricsRoute;
-  '/sessions': typeof SessionsRoute;
+  '/_authenticated': typeof AuthenticatedRouteWithChildren;
+  '/login': typeof LoginRoute;
+  '/_authenticated/chat': typeof AuthenticatedChatRoute;
+  '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute;
+  '/_authenticated/memories': typeof AuthenticatedMemoriesRoute;
+  '/_authenticated/metrics': typeof AuthenticatedMetricsRoute;
+  '/_authenticated/sessions': typeof AuthenticatedSessionsRoute;
+  '/_authenticated/': typeof AuthenticatedIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
+    | '/login'
     | '/chat'
     | '/knowledge'
     | '/memories'
     | '/metrics'
-    | '/sessions';
+    | '/sessions'
+    | '/';
   fileRoutesByTo: FileRoutesByTo;
-  to: '/' | '/chat' | '/knowledge' | '/memories' | '/metrics' | '/sessions';
+  to:
+    | '/login'
+    | '/chat'
+    | '/knowledge'
+    | '/memories'
+    | '/metrics'
+    | '/sessions'
+    | '/';
   id:
     | '__root__'
-    | '/'
-    | '/chat'
-    | '/knowledge'
-    | '/memories'
-    | '/metrics'
-    | '/sessions';
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/chat'
+    | '/_authenticated/knowledge'
+    | '/_authenticated/memories'
+    | '/_authenticated/metrics'
+    | '/_authenticated/sessions'
+    | '/_authenticated/';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  ChatRoute: typeof ChatRoute;
-  KnowledgeRoute: typeof KnowledgeRoute;
-  MemoriesRoute: typeof MemoriesRoute;
-  MetricsRoute: typeof MetricsRoute;
-  SessionsRoute: typeof SessionsRoute;
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren;
+  LoginRoute: typeof LoginRoute;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sessions': {
-      id: '/sessions';
-      path: '/sessions';
-      fullPath: '/sessions';
-      preLoaderRoute: typeof SessionsRouteImport;
+    '/login': {
+      id: '/login';
+      path: '/login';
+      fullPath: '/login';
+      preLoaderRoute: typeof LoginRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/metrics': {
-      id: '/metrics';
-      path: '/metrics';
-      fullPath: '/metrics';
-      preLoaderRoute: typeof MetricsRouteImport;
+    '/_authenticated': {
+      id: '/_authenticated';
+      path: '';
+      fullPath: '';
+      preLoaderRoute: typeof AuthenticatedRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/memories': {
-      id: '/memories';
-      path: '/memories';
-      fullPath: '/memories';
-      preLoaderRoute: typeof MemoriesRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    '/knowledge': {
-      id: '/knowledge';
-      path: '/knowledge';
-      fullPath: '/knowledge';
-      preLoaderRoute: typeof KnowledgeRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    '/chat': {
-      id: '/chat';
-      path: '/chat';
-      fullPath: '/chat';
-      preLoaderRoute: typeof ChatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    '/': {
-      id: '/';
+    '/_authenticated/': {
+      id: '/_authenticated/';
       path: '/';
       fullPath: '/';
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    '/_authenticated/sessions': {
+      id: '/_authenticated/sessions';
+      path: '/sessions';
+      fullPath: '/sessions';
+      preLoaderRoute: typeof AuthenticatedSessionsRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    '/_authenticated/metrics': {
+      id: '/_authenticated/metrics';
+      path: '/metrics';
+      fullPath: '/metrics';
+      preLoaderRoute: typeof AuthenticatedMetricsRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    '/_authenticated/memories': {
+      id: '/_authenticated/memories';
+      path: '/memories';
+      fullPath: '/memories';
+      preLoaderRoute: typeof AuthenticatedMemoriesRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    '/_authenticated/knowledge': {
+      id: '/_authenticated/knowledge';
+      path: '/knowledge';
+      fullPath: '/knowledge';
+      preLoaderRoute: typeof AuthenticatedKnowledgeRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    '/_authenticated/chat': {
+      id: '/_authenticated/chat';
+      path: '/chat';
+      fullPath: '/chat';
+      preLoaderRoute: typeof AuthenticatedChatRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
     };
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedChatRoute: typeof AuthenticatedChatRoute;
+  AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute;
+  AuthenticatedMemoriesRoute: typeof AuthenticatedMemoriesRoute;
+  AuthenticatedMetricsRoute: typeof AuthenticatedMetricsRoute;
+  AuthenticatedSessionsRoute: typeof AuthenticatedSessionsRoute;
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute;
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedChatRoute: AuthenticatedChatRoute,
+  AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
+  AuthenticatedMemoriesRoute: AuthenticatedMemoriesRoute,
+  AuthenticatedMetricsRoute: AuthenticatedMetricsRoute,
+  AuthenticatedSessionsRoute: AuthenticatedSessionsRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+};
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+);
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ChatRoute: ChatRoute,
-  KnowledgeRoute: KnowledgeRoute,
-  MemoriesRoute: MemoriesRoute,
-  MetricsRoute: MetricsRoute,
-  SessionsRoute: SessionsRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  LoginRoute: LoginRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -18,6 +18,10 @@ import {
 } from '@tanstack/react-router';
 
 import {
+  AuthProvider, useAuth
+} from './login/authconfigprovider'
+
+import {
   QueryClient, QueryClientProvider
 } from '@tanstack/react-query';
 
@@ -31,13 +35,21 @@ import './main.css';
 // Create the main query client.
 const client = new QueryClient();
 
+// Inject auth state into the router context
+function App() {
+  const auth = useAuth()
+  return <RouterProvider router={router} context={{ auth }} />
+}
 
 // Create the main router object.
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
-  context: { client }
+  context: { 
+    client,
+    auth: undefined!,
+  }
 });
 
 
@@ -56,10 +68,12 @@ const system = createSystem(defaultConfig, { preflight: false });
 // Render the app into the root element.
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ChakraProvider value={ system }>
-      <QueryClientProvider client={ client }>
-        <RouterProvider router={ router } />
-      </QueryClientProvider>
-    </ChakraProvider>
+    <AuthProvider>
+      <ChakraProvider value={ system }>
+        <QueryClientProvider client={ client }>
+          <App />
+        </QueryClientProvider>
+      </ChakraProvider>
+    </AuthProvider>
   </StrictMode>
 );

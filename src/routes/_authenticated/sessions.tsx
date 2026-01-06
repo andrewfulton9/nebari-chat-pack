@@ -7,11 +7,11 @@ import {
 
 
 export
-const Route = createFileRoute('/knowledge')({
+const Route = createFileRoute('/_authenticated/sessions')({
   component: RouteComponent
 });
 
 
 function RouteComponent() {
-  return <div>Hello "/knowledge"!</div>;
+  return <div>Hello "/sessions"!</div>;
 }

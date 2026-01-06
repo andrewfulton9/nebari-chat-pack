@@ -5,13 +5,29 @@ import {
   createFileRoute
 } from '@tanstack/react-router';
 
+import type {
+  ReactNode
+} from 'react';
 
+import {
+  Home
+} from '@/home';
+
+
+/**
+ * The route definition for the home page.
+ */
 export
-const Route = createFileRoute('/sessions')({
+const Route = createFileRoute('/_authenticated/')({
   component: RouteComponent
 });
 
 
-function RouteComponent() {
-  return <div>Hello "/sessions"!</div>;
+/**
+ * A react component that renders the home route.
+ */
+function RouteComponent(): ReactNode {
+  return (
+    <Home />
+  );
 }
