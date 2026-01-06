@@ -1,6 +1,10 @@
 /*-----------------------------------------------------------------------------
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
+import {
+  Link
+} from '@tanstack/react-router';
+
 import type {
   Table as TSTable
 } from '@tanstack/react-table';
@@ -32,21 +36,21 @@ import {
 } from '@/lib/utils';
 
 import {
-  useMemoriesConfig
+  useSessionsConfig
 } from './configprovider';
 
 
 /**
- * A React component that renders the table of agentic user memories.
+ * A React component that renders a sessions table.
  */
 export
-function DataTable(): ReactNode {
+function SessionsTable(): ReactNode {
   // Fetch the memories config.
-  const { data } = useMemoriesConfig();
+  const { type, sessions } = useSessionsConfig();
 
   // Create the data table model.
   const table = useReactTable({
-    data: data.data,
+    data: sessions.data,
     columns: Private.columns,
     getCoreRowModel: getCoreRowModel()
   });
@@ -56,8 +60,7 @@ function DataTable(): ReactNode {
 
   // Create the column -> className mapping.
   const classNames = {
-    memory: 'w-[60%]',
-    topics: 'w-[40%]'
+    session_name: 'w-[100%]'
   } as Record<string, string>;
 
   // Iterate the header groups to create the header rows.
@@ -77,8 +80,7 @@ function DataTable(): ReactNode {
           key={ header.id }
           className={ classNames[header.id] }>
           { content }
-        </TableHead>
-      );
+        </TableHead>);
     }
 
     // Create and add the header row.
@@ -107,14 +109,14 @@ function DataTable(): ReactNode {
     bodyRows.push(<TableRow key={ row.id }>{ cells }</TableRow>);
   }
 
-  // Insert a placeholder row when there are no memories.
+  // Insert a placeholder row when there are no sessions.
   if (bodyRows.length === 0) {
     bodyRows.push(
-      <TableRow key='$no_memories_found'>
+      <TableRow key={ `no_${type}_sessions_found` }>
         <TableCell
           colSpan={ table.getAllColumns().length }
           className='text-center text-muted-foreground'>
-          No memories found.
+          { `No ${type} sessions found.` }
         </TableCell>
       </TableRow>
     );
@@ -122,16 +124,18 @@ function DataTable(): ReactNode {
 
   // Return the rendered component.
   return (
-    <div className='rounded-sm border border-border'>
-      <Table>
-        <TableHeader>
-          { headerRows }
-        </TableHeader>
-        <TableBody>
-          { bodyRows }
-        </TableBody>
-      </Table>
-      <Private.ClearDeleteBar table={ table } />
+    <div className='p-4 overflow-y-auto'>
+      <div className='rounded-sm border border-border'>
+        <Table>
+          <TableHeader>
+            { headerRows }
+          </TableHeader>
+          <TableBody>
+            { bodyRows }
+          </TableBody>
+        </Table>
+        <Private.ClearDeleteBar table={ table } />
+      </div>
     </div>
   );
 }
@@ -144,7 +148,7 @@ namespace Private {
   /**
    * Create the helper for defining the columns.
    */
-  const columnHelper = createColumnHelper<api.MemoryItem>();
+  const columnHelper = createColumnHelper<api.SessionsListItem>();
 
   /**
    * Create the column for the selection check boxes.
@@ -186,32 +190,27 @@ namespace Private {
   /**
    * Create the column to display the memory text data.
    */
-  const memoryColumn = columnHelper.accessor('memory', {
-    header: 'Memory',
+  const nameColumn = columnHelper.accessor('session_name', {
+    header: 'Name',
     cell: cellContext => {
+      const row = cellContext.row;
+      const sessionId = row.original.session_id;
+      const activeProps = {
+        className: 'text-bd-brand-default font-semibold'
+      };
       return (
-        <p className='max-w-xl whitespace-pre-wrap break-words'>
-          { cellContext.getValue() }
+        <p className='whitespace-pre-wrap'>
+          <Link
+            className='block'
+            to='/sessions/{-$sessionId}'
+            params={ { sessionId } }
+            // @ts-ignore
+            search={ prev => prev }
+            activeProps={ activeProps }>
+            { cellContext.getValue() || 'Untitled Session' }
+          </Link>
         </p>
       );
-    },
-  });
-
-  /**
-   * Create the column to display the memory topics.
-   */
-  const topicsColumn = columnHelper.accessor('topics', {
-    header: 'Topics',
-    cell: cellContext => {
-      const topics = cellContext.getValue();
-      const spans = topics.map(topic => (
-        <span
-          key={ topic }
-          className='rounded-full bg-muted px-2 py-0.5 text-[11px]'>
-          { topic }
-        </span>
-      ));
-      return <div className='flex flex-wrap gap-1'>{ spans }</div>;
     },
   });
 
@@ -236,8 +235,7 @@ namespace Private {
   export
   const columns = [
     selectColumn,
-    memoryColumn,
-    topicsColumn,
+    nameColumn,
     updatedAtColumn
   ];
 
@@ -249,7 +247,7 @@ namespace Private {
     /**
      * The Tanstack table instance for the page.
      */
-    readonly table: TSTable<api.MemoryItem>;
+    readonly table: TSTable<api.SessionsListItem>;
   };
 
   /**
@@ -260,8 +258,8 @@ namespace Private {
     // Extract the props.
     const { table } = props;
 
-    // Fetch the memories config.
-    const { deleteMemories } = useMemoriesConfig();
+    // Fetch the sessions config.
+    const { type, deleteSessions } = useSessionsConfig();
 
     // Fetch the needed info from the table.
     const rowCount = table.getRowModel().rows.length;
@@ -282,13 +280,16 @@ namespace Private {
     const handleDelete = () => {
       // Fetch the ids of the memories to delete.
       const rows = table.getSelectedRowModel().rows;
-      const ids = rows.map(row => row.original.memory_id);
+      const session_ids = rows.map(row => row.original.session_id);
+
+      // Create the array of session types.
+      const session_types = (new Array(session_ids.length)).fill(type);
 
       // Clear the selected rows.
       table.resetRowSelection();
 
       // Delete the memories on the server.
-      deleteMemories(ids);
+      deleteSessions({ session_ids, session_types });
     };
 
     // Return the rendered component.

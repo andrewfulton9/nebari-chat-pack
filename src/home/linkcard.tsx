@@ -25,7 +25,7 @@ function LinkCard(props: LinkCard.Props): ReactNode {
   // Return the rendered component.
   return (
     <Link to={ to }>
-      <Card className='rounded-xs hover:border-bd-brand-default'>
+      <Card className='rounded-sm hover:border-bd-brand-default'>
         <CardHeader>
           <CardTitle className='flex flex-row gap-2'>
             { icon }

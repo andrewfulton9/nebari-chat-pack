@@ -113,13 +113,11 @@ namespace Private {
   export
   function LauncherLink(props: LauncherLinkProps): ReactNode {
     // Extract the props.
-    const {to, collapsed, icon, text} = props;
+    const { to, collapsed, icon, text } = props;
 
     // Create the active link props.
     const activeProps = {
-      className: cn(
-        'text-bd-brand-default hover:bg-bg-brand-secondary font-semibold'
-      )
+      className: 'text-bd-brand-default font-semibold'
     };
 
     // Create the inactive link props.
@@ -130,14 +128,14 @@ namespace Private {
     // Return the rendered component.
     return (
       <Link
-        to={to}
-        activeProps={activeProps}
-        inactiveProps={inactiveProps}
-        className={cn(
-        'h-9 px-1 flex flex-row gap-2 items-center cursor-pointer',
-        'rounded-xs whitespace-nowrap overflow-hidden')}>
-        <span className='flex-none w-6'>{icon}</span>
-        <span className={ collapsed ? 'hidden' : '' }>{text}</span>
+        to={ to }
+        activeProps={ activeProps }
+        inactiveProps={ inactiveProps }
+        className={ cn(
+        'h-9 px-1 flex flex-row gap-2 items-center',
+        'rounded-sm whitespace-nowrap overflow-hidden') }>
+        <span className='flex-none w-6'>{ icon }</span>
+        <span className={ collapsed ? 'hidden' : '' }>{ text }</span>
       </Link>
     );
   }
