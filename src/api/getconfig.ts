@@ -57,7 +57,7 @@ export
 async function getConfig(): Promise<Config> {
   // Fetch the resource.
   const resp = await fetch('/api/config', {
-    credentials: 'include',
+    credentials: 'include'
   });
 
   // Guard against request failure.

@@ -12,11 +12,11 @@ import { Route as rootRouteImport } from './routes/__root';
 import { Route as LoginRouteImport } from './routes/login';
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated';
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index';
-import { Route as AuthenticatedSessionsRouteImport } from './routes/_authenticated/sessions';
 import { Route as AuthenticatedMetricsRouteImport } from './routes/_authenticated/metrics';
 import { Route as AuthenticatedMemoriesRouteImport } from './routes/_authenticated/memories';
 import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated/knowledge';
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat';
+import { Route as AuthenticatedSessionsChar123SessionIdChar125RouteImport } from './routes/_authenticated/sessions.{-$sessionId}';
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -30,11 +30,6 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRoute,
-} as any);
-const AuthenticatedSessionsRoute = AuthenticatedSessionsRouteImport.update({
-  id: '/sessions',
-  path: '/sessions',
   getParentRoute: () => AuthenticatedRoute,
 } as any);
 const AuthenticatedMetricsRoute = AuthenticatedMetricsRouteImport.update({
@@ -57,6 +52,12 @@ const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => AuthenticatedRoute,
 } as any);
+const AuthenticatedSessionsChar123SessionIdChar125Route =
+  AuthenticatedSessionsChar123SessionIdChar125RouteImport.update({
+    id: '/sessions/{-$sessionId}',
+    path: '/sessions/{-$sessionId}',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any);
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute;
@@ -64,8 +65,8 @@ export interface FileRoutesByFullPath {
   '/knowledge': typeof AuthenticatedKnowledgeRoute;
   '/memories': typeof AuthenticatedMemoriesRoute;
   '/metrics': typeof AuthenticatedMetricsRoute;
-  '/sessions': typeof AuthenticatedSessionsRoute;
   '/': typeof AuthenticatedIndexRoute;
+  '/sessions/{-$sessionId}': typeof AuthenticatedSessionsChar123SessionIdChar125Route;
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute;
@@ -73,8 +74,8 @@ export interface FileRoutesByTo {
   '/knowledge': typeof AuthenticatedKnowledgeRoute;
   '/memories': typeof AuthenticatedMemoriesRoute;
   '/metrics': typeof AuthenticatedMetricsRoute;
-  '/sessions': typeof AuthenticatedSessionsRoute;
   '/': typeof AuthenticatedIndexRoute;
+  '/sessions/{-$sessionId}': typeof AuthenticatedSessionsChar123SessionIdChar125Route;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
@@ -84,8 +85,8 @@ export interface FileRoutesById {
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute;
   '/_authenticated/memories': typeof AuthenticatedMemoriesRoute;
   '/_authenticated/metrics': typeof AuthenticatedMetricsRoute;
-  '/_authenticated/sessions': typeof AuthenticatedSessionsRoute;
   '/_authenticated/': typeof AuthenticatedIndexRoute;
+  '/_authenticated/sessions/{-$sessionId}': typeof AuthenticatedSessionsChar123SessionIdChar125Route;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
@@ -95,8 +96,8 @@ export interface FileRouteTypes {
     | '/knowledge'
     | '/memories'
     | '/metrics'
-    | '/sessions'
-    | '/';
+    | '/'
+    | '/sessions/{-$sessionId}';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/login'
@@ -104,8 +105,8 @@ export interface FileRouteTypes {
     | '/knowledge'
     | '/memories'
     | '/metrics'
-    | '/sessions'
-    | '/';
+    | '/'
+    | '/sessions/{-$sessionId}';
   id:
     | '__root__'
     | '/_authenticated'
@@ -114,8 +115,8 @@ export interface FileRouteTypes {
     | '/_authenticated/knowledge'
     | '/_authenticated/memories'
     | '/_authenticated/metrics'
-    | '/_authenticated/sessions'
-    | '/_authenticated/';
+    | '/_authenticated/'
+    | '/_authenticated/sessions/{-$sessionId}';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -146,13 +147,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport;
       parentRoute: typeof AuthenticatedRoute;
     };
-    '/_authenticated/sessions': {
-      id: '/_authenticated/sessions';
-      path: '/sessions';
-      fullPath: '/sessions';
-      preLoaderRoute: typeof AuthenticatedSessionsRouteImport;
-      parentRoute: typeof AuthenticatedRoute;
-    };
     '/_authenticated/metrics': {
       id: '/_authenticated/metrics';
       path: '/metrics';
@@ -181,6 +175,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatRouteImport;
       parentRoute: typeof AuthenticatedRoute;
     };
+    '/_authenticated/sessions/{-$sessionId}': {
+      id: '/_authenticated/sessions/{-$sessionId}';
+      path: '/sessions/{-$sessionId}';
+      fullPath: '/sessions/{-$sessionId}';
+      preLoaderRoute: typeof AuthenticatedSessionsChar123SessionIdChar125RouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
   }
 }
 
@@ -189,8 +190,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute;
   AuthenticatedMemoriesRoute: typeof AuthenticatedMemoriesRoute;
   AuthenticatedMetricsRoute: typeof AuthenticatedMetricsRoute;
-  AuthenticatedSessionsRoute: typeof AuthenticatedSessionsRoute;
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute;
+  AuthenticatedSessionsChar123SessionIdChar125Route: typeof AuthenticatedSessionsChar123SessionIdChar125Route;
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -198,8 +199,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
   AuthenticatedMemoriesRoute: AuthenticatedMemoriesRoute,
   AuthenticatedMetricsRoute: AuthenticatedMetricsRoute,
-  AuthenticatedSessionsRoute: AuthenticatedSessionsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedSessionsChar123SessionIdChar125Route:
+    AuthenticatedSessionsChar123SessionIdChar125Route,
 };
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

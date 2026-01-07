@@ -16,7 +16,8 @@ async function deleteMemories(ids: readonly string[]): Promise<void> {
   const resp = await fetch('/api/memories', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ memory_ids: ids })
+    body: JSON.stringify({ memory_ids: ids }),
+    credentials: 'include'
   });
 
   // Guard against request failure.

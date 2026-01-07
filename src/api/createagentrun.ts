@@ -206,26 +206,19 @@ async function *createAgentRun(
   options: createAgentRun.Options
 ): AsyncGenerator<RunEvent> {
   // Extract the options.
-  const { agent_id, message, session_id, user_id } = options;
+  const { agent_id, message, session_id } = options;
 
   // Create the form data for the request.
   const fd = new FormData();
-
-  // Set the required form data.
   fd.append('message', message);
   fd.append('stream', 'true');
-
-  // Set the optional form data.
-  if (session_id) {
-    fd.append('session_id', session_id);
-  }
-  if (user_id) {
-    fd.append('user_id', user_id);
-  }
+  fd.append('session_id', session_id);
 
   // Fetch the endpoint.
   const resp = await fetch(`/api/agents/${agent_id}/runs`, {
-    method: 'POST', body: fd
+    method: 'POST',
+    body: fd,
+    credentials: 'include'
   });
 
   // Guard against request failure.
@@ -280,10 +273,5 @@ namespace createAgentRun {
      * The unique id of the existing session for the agent.
      */
     readonly session_id: string;
-
-    /**
-     * The unique id of the user making the request.
-     */
-    readonly user_id?: string;
   };
 }

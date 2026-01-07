@@ -92,7 +92,7 @@ namespace Private {
 
     // Calculate the full class name for the button.
     const fcn = cn(
-      'rounded-xs border px-1 text-sm cursor-pointer',
+      'rounded-sm border px-1 text-sm cursor-pointer',
       'disabled:opacity-40 disabled:cursor-default',
       className
     );

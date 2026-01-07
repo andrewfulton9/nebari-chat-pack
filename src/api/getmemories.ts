@@ -73,7 +73,9 @@ type Memories = v.InferOutput<typeof memoriesSchema>;
 export
 async function getMemories(): Promise<Memories> {
   // Fetch the resource.
-  const resp = await fetch('/api/memories');
+  const resp = await fetch('/api/memories', {
+    credentials: 'include'
+  });
 
   // Guard against fetch failure.
   if (!resp.ok) {
