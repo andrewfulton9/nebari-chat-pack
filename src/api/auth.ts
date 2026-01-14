@@ -1,44 +1,51 @@
 /*-----------------------------------------------------------------------------
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
+import type {
+  RecordAuthResponse, RecordModel
+} from 'pocketbase';
+
 import {
   pb
 } from './pb'
 
+
 /**
- * User login function
+ * A function which handles the user login via UN/PW.
  * 
- * @param options {username and password}
+ * @param options - The options for logging in the user.
  * 
  */
 export
-async function login(options: login.Options) {
-
+async function login(
+  options: login.Options
+): Promise<RecordAuthResponse<RecordModel>> {
   // Extract the options
-  const {email, password} = options;
+  const { email, password } = options;
 
   // Auth with password using Pocketbase
-  const resp = await pb.collection('users').authWithPassword(email, password);
-
-  // returns logged in user data (type RecordModel)
-  return resp
+  return await pb.collection('users').authWithPassword(email, password);
 }
 
-/**
- * namespace for the login
- */
-export namespace login {
 
+/**
+ * The namespace for the `login` statics.
+ */
+export
+namespace login {
+  /**
+   * A type alias for the `login` options.
+   */
   export
   type Options = {
     /**
-     * username for login
+     * The username for the login.
      */
     readonly email: string;
 
     /**
-     * password for login
+     * The password for login.
      */
     readonly password: string
-  }
+  };
 }
