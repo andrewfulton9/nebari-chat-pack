@@ -14,33 +14,14 @@ import type {
 } from 'react';
 
 import {
-  ConfigProvider
-} from '@/config';
-
-import {
   Sidebar
 } from '@/sidebar';
 
-import type {
-  RecordModel
-} from 'pocketbase';
-
-
-/**
- * Auth state interface
- */
-type AuthState = {
-  isAuthenticated: boolean;
-  user: RecordModel | null;
-  login: (options: {email: string, password: string}) => Promise<RecordModel | null>;
-  logout: () => void;
-}
 
 /**
  * The root route context.
  */
 type RouteContext = {
-  auth: AuthState;
   client: QueryClient;
 };
 
@@ -58,14 +39,10 @@ const Route = createRootRouteWithContext<RouteContext>()({
  * The component that renders the root route.
  */
 function RouteComponent(): ReactNode {
-  // Fetch the Agno config object.
-  const config = Route.useLoaderData();
-
-  // Return the rendered component.
   return (
-    <ConfigProvider value={ config }>
+    <>
       <Sidebar />
       <Outlet />
-    </ConfigProvider>
+    </>
   );
 }

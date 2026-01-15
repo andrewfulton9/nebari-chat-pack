@@ -1,40 +1,58 @@
-import {
-  createFileRoute,
-  useNavigate,
-  redirect
-} from '@tanstack/react-router';
+/*-----------------------------------------------------------------------------
+| Copyright (c) 2025-present, OpenTeams Inc.
+|----------------------------------------------------------------------------*/
+import * as v from 'valibot';
 
 import {
-  useAuth
-} from "@/login//authconfigprovider";
+  createFileRoute, redirect, useNavigate
+} from '@tanstack/react-router';
+
+import * as api from '@/api';
 
 import {
   Login
-} from '@/login'
+} from '@/login';
 
 
-export const Route = createFileRoute('/login')({
-  validateSearch: (search) => ({
-    redirect: (search.redirect as string) || '/',
-  }),
-  beforeLoad: ({ context, search}) => {
-    // Redirect if already authenticated
-    if (context.auth.isAuthenticated) {
+/**
+ * The schema for `/login` search params.
+ */
+const searchSchema = v.object({
+  redirect: v.fallback(v.string(), '/')
+});
+
+
+/**
+ * The route for `/login` endpoint.
+ */
+export
+const Route = createFileRoute('/login')({
+  validateSearch: searchSchema,
+  beforeLoad: ({ search }) => {
+    if (api.getUser() !== null) {
       throw redirect({ to: search.redirect })
     }
   },
   component: RouteComponent,
 });
 
-function RouteComponent() {
-  const auth = useAuth()
-  const navigate = useNavigate()
-  const { redirect: redirectTo } = Route.useSearch()
 
-  const handleLogin = async (email: string, password: string) => {
-    await auth.login({ email, password });
-    await navigate({ to: redirectTo });
+/**
+ * The component that renders the `/login` route.
+ */
+function RouteComponent() {
+  // Fetch the navigate function.
+  const navigate = useNavigate();
+
+  // Fetch the search params.
+  const { redirect } = Route.useSearch();
+
+  // Create the callback to handle the login.
+  const handleLogin = async (options: api.login.Options) => {
+    await api.login(options);
+    await navigate({ to: redirect });
   };
 
-  return <Login submit={handleLogin} />;
+  // Return the rendered component.
+  return <Login onLogin={ handleLogin } />;
 }

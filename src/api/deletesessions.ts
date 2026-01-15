@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------------
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
-
 import {
   pb
 } from './pb'
+
 
 /**
  * Delete sessions from the server.
@@ -18,7 +18,10 @@ async function deleteSessions(options: deleteSessions.Options): Promise<void> {
   // Create the request.
   const resp = await fetch('/api/sessions', {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${pb.authStore.token}` },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${pb.authStore.token}`
+    },
     body: JSON.stringify(options),
   });
 

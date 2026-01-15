@@ -1,44 +1,89 @@
 /*-----------------------------------------------------------------------------
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
+import type {
+  AuthRecord as PBAuthRecord
+} from 'pocketbase';
+
 import {
   pb
 } from './pb'
 
+
 /**
- * User login function
+ * A type alias for a user auth record.
+ *
+ * The record will be `null` if no user is logged in.
+ */
+export
+type AuthRecord = PBAuthRecord;
+
+
+/**
+ * A function which handles the user login via UN/PW.
  * 
- * @param options {username and password}
+ * @param options - The options for logging in the user.
  * 
  */
 export
-async function login(options: login.Options) {
-
+async function login(options: login.Options): Promise<void> {
   // Extract the options
-  const {email, password} = options;
+  const { username, password } = options;
 
   // Auth with password using Pocketbase
-  const resp = await pb.collection('users').authWithPassword(email, password);
-
-  // returns logged in user data (type RecordModel)
-  return resp
+  await pb.collection('users').authWithPassword(username, password);
 }
 
-/**
- * namespace for the login
- */
-export namespace login {
 
+/**
+ * The namespace for the `login` statics.
+ */
+export
+namespace login {
+  /**
+   * A type alias for the `login` options.
+   */
   export
   type Options = {
     /**
-     * username for login
+     * The username for the login.
      */
-    readonly email: string;
+    readonly username: string;
 
     /**
-     * password for login
+     * The password for login.
      */
     readonly password: string
-  }
+  };
+}
+
+
+/**
+ * A function which handles user logout.
+ */
+export
+function logout(): void {
+  pb.authStore.clear();
+}
+
+
+/**
+ * Get the auth record for the logged in user, or `null`.
+ */
+export
+function getUser(): AuthRecord {
+  return pb.authStore.record;
+};
+
+
+/**
+ * Register a callback to be notified of user change.
+ *
+ * @param cb - A callback to invoke when the auth record changes.
+ *
+ * @returns A function that will unregister the callback.
+ */
+export
+function onUserChange(cb: (record: AuthRecord) => void): () => void {
+  return pb.authStore.onChange((_, record) => { cb(record); });
 }

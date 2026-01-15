@@ -59,8 +59,8 @@ function ChartCard(props: ChartCard.Props): ReactNode {
 
   // Return the rendered component.
   return (
-    <Card className='min-w-0 min-h-80 rounded-sm'>
-      <CardHeader>
+    <Card className='min-w-0 min-h-80 gap-2 py-4 rounded-sm'>
+      <CardHeader className='px-4'>
         <CardTitle>
           { title }
         </CardTitle>
@@ -68,7 +68,7 @@ function ChartCard(props: ChartCard.Props): ReactNode {
           { description }
         </CardDescription>
       </CardHeader>
-      <CardContent className='grow min-h-0' ref={ ref } />
+      <CardContent className='px-4 grow min-h-0' ref={ ref } />
     </Card>
   );
 }

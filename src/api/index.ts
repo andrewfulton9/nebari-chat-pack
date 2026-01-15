@@ -1,6 +1,7 @@
 /*-----------------------------------------------------------------------------
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
+export * from './auth';
 export * from './createagentrun';
 export * from './deletememories';
 export * from './deletesessions';
@@ -11,5 +12,3 @@ export * from './getsession';
 export * from './getsessionruns';
 export * from './listsessions';
 export * from './tools';
-export * from './auth';
-export * from './pb';

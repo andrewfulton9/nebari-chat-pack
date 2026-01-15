@@ -4,12 +4,13 @@
 import * as v from 'valibot';
 
 import {
+  pb
+} from './pb'
+
+import {
   toolCallSchema
 } from './tools';
 
-import {
-  pb
-} from './pb'
 
 /**
  * A schema for Agno session run metrics.
