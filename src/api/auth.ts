@@ -2,12 +2,21 @@
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
 import type {
-  RecordAuthResponse, RecordModel
+  AuthRecord as PBAuthRecord
 } from 'pocketbase';
 
 import {
   pb
 } from './pb'
+
+
+/**
+ * A type alias for a user auth record.
+ *
+ * The record will be `null` if no user is logged in.
+ */
+export
+type AuthRecord = PBAuthRecord;
 
 
 /**
@@ -17,14 +26,12 @@ import {
  * 
  */
 export
-async function login(
-  options: login.Options
-): Promise<RecordAuthResponse<RecordModel>> {
+async function login(options: login.Options): Promise<void> {
   // Extract the options
-  const { email, password } = options;
+  const { username, password } = options;
 
   // Auth with password using Pocketbase
-  return await pb.collection('users').authWithPassword(email, password);
+  await pb.collection('users').authWithPassword(username, password);
 }
 
 
@@ -41,11 +48,42 @@ namespace login {
     /**
      * The username for the login.
      */
-    readonly email: string;
+    readonly username: string;
 
     /**
      * The password for login.
      */
     readonly password: string
   };
+}
+
+
+/**
+ * A function which handles user logout.
+ */
+export
+function logout(): void {
+  pb.authStore.clear();
+}
+
+
+/**
+ * Get the auth record for the logged in user, or `null`.
+ */
+export
+function getUser(): AuthRecord {
+  return pb.authStore.record;
+};
+
+
+/**
+ * Register a callback to be notified of user change.
+ *
+ * @param cb - A callback to invoke when the auth record changes.
+ *
+ * @returns A function that will unregister the callback.
+ */
+export
+function onUserChange(cb: (record: AuthRecord) => void): () => void {
+  return pb.authStore.onChange((_, record) => { cb(record); });
 }

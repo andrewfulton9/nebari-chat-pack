@@ -11,5 +11,4 @@ export * from './getmetrics';
 export * from './getsession';
 export * from './getsessionruns';
 export * from './listsessions';
-export * from './pb';
 export * from './tools';

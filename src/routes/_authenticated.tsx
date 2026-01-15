@@ -1,36 +1,35 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) 2025-present, OpenTeams Inc.
+|----------------------------------------------------------------------------*/
 import {
-  createFileRoute,
-  redirect,
-  Outlet
+  Outlet, createFileRoute, redirect
 } from '@tanstack/react-router'
 
 import type {
   ReactNode,
 } from 'react';
 
+import * as api from '@/api';
+
 import {
   ConfigProvider
 } from '@/config';
 
-import * as api from '@/api';
-
 
 /**
- * Auth bypass for the dev environment
+ * Auth bypass for the dev environment.
  * 
- * (IMPORTANT) - update the .env variables before deployment
- * @returns 
+ * (IMPORTANT) - update the .env variables before deployment.
  */
-export function shouldEnforceAuth() {
-  const bypass = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true'
-  const prod = import.meta.env.VITE_MODE === 'production'
-
-  return !(bypass && !prod)
+function shouldEnforceAuth(): boolean {
+  const bypass = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
+  const prod = import.meta.env.VITE_MODE === 'production';
+  return !(bypass && !prod);
 }
 
+
 /**
- * The query params for loading the Agno config.
- * (Moved from __root) confg is now fetched after the authentication is successful
+ * The query params for loading the core Agno OS config.
  */
 const configQuery = {
   queryKey: ['config'],
@@ -38,26 +37,26 @@ const configQuery = {
   staleTime: 'static'
 } as const;
 
+
 /**
- * Authenticated route
+ * The base route that enforces authentication.
  */
-export const Route = createFileRoute('/_authenticated')({
-  // Route the user to the /login page if not authenticated yet
-  beforeLoad: ({ context, location }) => {
-    if (shouldEnforceAuth() && !context.auth.isAuthenticated) {
+export
+const Route = createFileRoute('/_authenticated')({
+  beforeLoad: ({ location }) => {
+    if (shouldEnforceAuth() && api.getUser() === null) {
       throw redirect({
         to: '/login',
-        search: {
-          redirect: location.href
-        },
-      })
+        search: { redirect: location.href },
+      });
     }
   },
   component: RouteComponent,
   loader: ({ context }) => {
     return context.client.ensureQueryData(configQuery);
   }
-})
+});
+
 
 /**
  * The component that renders the authenticated route.

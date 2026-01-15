@@ -9,6 +9,8 @@ import {
   useState
 } from 'react'
 
+import * as api from '@/api';
+
 import {
   Button
 } from '@/components/ui/button';
@@ -36,7 +38,7 @@ import {
 export
 function Login(props: Login.Props): ReactNode {
   // Extract the props.
-  const { submit } = props;
+  const { onLogin } = props;
 
   // Create the state for the component.
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,7 +60,7 @@ function Login(props: Login.Props): ReactNode {
 
     // Attempt to submit the login info.
     try {
-      await submit(username, password);
+      await onLogin({ username, password });
     } catch (e) {
       setError('Invalid username or password');
     } finally {
@@ -155,6 +157,6 @@ namespace Login {
     /**
      * A callback function to submit the UN/PW for login.
      */
-    readonly submit: (email: string, password: string) => Promise<void>;
+    readonly onLogin: (options: api.login.Options) => Promise<void>;
   };
 }

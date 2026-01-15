@@ -2,7 +2,7 @@
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
 import {
-  StrictMode, useEffect
+  StrictMode, useEffect, useState
 } from 'react';
 
 import {
@@ -14,12 +14,18 @@ import {
 } from '@tanstack/react-router';
 
 import {
-  AuthProvider, useAuth
-} from './login/authconfigprovider'
-
-import {
   QueryClient, QueryClientProvider
 } from '@tanstack/react-query';
+
+import * as api from '@/api';
+
+import type {
+  AuthConfig
+} from '@/auth';
+
+import {
+  AuthConfigProvider
+} from '@/auth';
 
 import {
   routeTree
@@ -28,24 +34,16 @@ import {
 import './main.css';
 
 
-// Create the main query client.
+// Create the singleton query client.
 const client = new QueryClient();
 
-// Inject auth state into the router context
-function App() {
-  const auth = useAuth()
-  return <RouterProvider router={router} context={{ auth }} />
-}
 
 // Create the main router object.
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
-  context: { 
-    client,
-    auth: undefined!,
-  }
+  context: { client }
 });
 
 
@@ -57,13 +55,35 @@ declare module '@tanstack/react-router' {
 }
 
 
+// A react component that bootstraps the application.
+function App() {
+  // Create the state to track the user record.
+  const [user, setUser] = useState<api.AuthRecord>(null);
+
+  // Sync the user record with the config state.
+  useEffect(() => {
+    // Ensure the user is synced with the current auth state.
+    setUser(api.getUser());
+
+    // Subscribe to changes of the auth record.
+    return api.onUserChange(record => { setUser(record); });
+  }, []);
+
+  // Create the auth config object.
+  const auth: AuthConfig = { user };
+
+  // Return the rendered component.
+  return (
+    <StrictMode>
+      <AuthConfigProvider value={ auth }>
+        <QueryClientProvider client={ client }>
+          <RouterProvider router={ router } />
+        </QueryClientProvider>
+      </AuthConfigProvider>
+    </StrictMode>
+  );
+}
+
+
 // Render the app into the root element.
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <AuthProvider>
-      <QueryClientProvider client={ client }>
-        <App />
-      </QueryClientProvider>
-    </AuthProvider>
-  </StrictMode>
-);
+createRoot(document.getElementById('root')!).render(<App />);

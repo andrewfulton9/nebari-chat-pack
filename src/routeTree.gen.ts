@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root';
+import { Route as LogoutRouteImport } from './routes/logout';
 import { Route as LoginRouteImport } from './routes/login';
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated';
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index';
@@ -18,6 +19,11 @@ import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authentica
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat';
 import { Route as AuthenticatedSessionsChar123SessionIdChar125RouteImport } from './routes/_authenticated/sessions.{-$sessionId}';
 
+const LogoutRoute = LogoutRouteImport.update({
+  id: '/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any);
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -61,6 +67,7 @@ const AuthenticatedSessionsChar123SessionIdChar125Route =
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute;
+  '/logout': typeof LogoutRoute;
   '/chat': typeof AuthenticatedChatRoute;
   '/knowledge': typeof AuthenticatedKnowledgeRoute;
   '/memories': typeof AuthenticatedMemoriesRoute;
@@ -70,6 +77,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute;
+  '/logout': typeof LogoutRoute;
   '/chat': typeof AuthenticatedChatRoute;
   '/knowledge': typeof AuthenticatedKnowledgeRoute;
   '/memories': typeof AuthenticatedMemoriesRoute;
@@ -81,6 +89,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/_authenticated': typeof AuthenticatedRouteWithChildren;
   '/login': typeof LoginRoute;
+  '/logout': typeof LogoutRoute;
   '/_authenticated/chat': typeof AuthenticatedChatRoute;
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute;
   '/_authenticated/memories': typeof AuthenticatedMemoriesRoute;
@@ -92,6 +101,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/login'
+    | '/logout'
     | '/chat'
     | '/knowledge'
     | '/memories'
@@ -101,6 +111,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/login'
+    | '/logout'
     | '/chat'
     | '/knowledge'
     | '/memories'
@@ -111,6 +122,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/login'
+    | '/logout'
     | '/_authenticated/chat'
     | '/_authenticated/knowledge'
     | '/_authenticated/memories'
@@ -122,10 +134,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren;
   LoginRoute: typeof LoginRoute;
+  LogoutRoute: typeof LogoutRoute;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/logout': {
+      id: '/logout';
+      path: '/logout';
+      fullPath: '/logout';
+      preLoaderRoute: typeof LogoutRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/login': {
       id: '/login';
       path: '/login';
@@ -211,6 +231,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  LogoutRoute: LogoutRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
