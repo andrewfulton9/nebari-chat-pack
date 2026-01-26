@@ -67,10 +67,6 @@ export
 async function loginWithOAuth2(provider: string): Promise<void> {
   await pb.collection('users').authWithOAuth2({
     provider,
-    urlCallback: (url) => {
-      // Open OAuth window
-      window.open(url, '_blank', 'noopener,noreferrer');
-    },
   });
 }
 
