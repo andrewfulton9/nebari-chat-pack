@@ -5,7 +5,11 @@ import type {
   ReactNode
 } from 'react';
 
-import remarkGfm from "remark-gfm";
+import rehypeKatex from 'rehype-katex';
+
+import remarkGfm from 'remark-gfm';
+
+import remarkMath from 'remark-math';
 
 import Markdown from 'react-markdown';
 
@@ -32,7 +36,8 @@ function ContentRenderer(props: ContentRenderer.Props): ReactNode {
   return (
     <div className='ot-ChatPlusPlus-markdown'>
       <Markdown
-        remarkPlugins={ [remarkGfm] }
+        remarkPlugins={ [remarkGfm, remarkMath] }
+        rehypePlugins={ [rehypeKatex] }
         components={ Private.markdownComponents }>
         { content }
       </Markdown>
