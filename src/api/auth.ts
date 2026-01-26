@@ -59,6 +59,23 @@ namespace login {
 
 
 /**
+ * A function which handles OAuth2 login (e.g., Keycloak).
+ *
+ * @param provider - The OAuth2 provider name (e.g., 'oidc' for Keycloak).
+ */
+export
+async function loginWithOAuth2(provider: string): Promise<void> {
+  await pb.collection('users').authWithOAuth2({
+    provider,
+    urlCallback: (url) => {
+      // Open OAuth window
+      window.open(url, '_blank', 'noopener,noreferrer');
+    },
+  });
+}
+
+
+/**
  * A function which handles user logout.
  */
 export

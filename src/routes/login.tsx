@@ -53,6 +53,12 @@ function RouteComponent() {
     await navigate({ to: redirect });
   };
 
+  // Create the callback to handle OAuth2 login.
+  const handleOAuth2Login = async (provider: string) => {
+    await api.loginWithOAuth2(provider);
+    await navigate({ to: redirect });
+  };
+
   // Return the rendered component.
-  return <Login onLogin={ handleLogin } />;
+  return <Login onLogin={ handleLogin } onOAuth2Login={ handleOAuth2Login } />;
 }

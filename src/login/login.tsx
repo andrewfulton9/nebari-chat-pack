@@ -38,7 +38,7 @@ import {
 export
 function Login(props: Login.Props): ReactNode {
   // Extract the props.
-  const { onLogin } = props;
+  const { onLogin, onOAuth2Login } = props;
 
   // Create the state for the component.
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,6 +63,24 @@ function Login(props: Login.Props): ReactNode {
       await onLogin({ username, password });
     } catch (e) {
       setError('Invalid username or password');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Create the handler for OAuth2 login.
+  const handleOAuth2Login = async (provider: string) => {
+    // Clear the error state.
+    setError(null);
+
+    // Set the submitting state.
+    setIsSubmitting(true);
+
+    // Attempt OAuth2 login.
+    try {
+      await onOAuth2Login(provider);
+    } catch (e) {
+      setError(`${provider} login failed`);
     } finally {
       setIsSubmitting(false);
     }
@@ -124,17 +142,49 @@ function Login(props: Login.Props): ReactNode {
             </FieldGroup>
           </form>
         </CardContent>
-        <CardFooter>
-          <Field>
+        <CardFooter className='flex flex-col gap-3'>
+          <Field className='w-full'>
             <Button
               type='submit'
               form='login-form'
               disabled={ isSubmitting }
               className={ cn(
-                'bg-bd-brand-default text-white rounded-sm',
+                'w-full bg-bd-brand-default text-white rounded-sm',
                 'hover:bg-bd-brand-default/80 disabled:opacity-50',
               ) }>
               { isSubmitting ? 'Signing in...' : 'Sign In' }
+            </Button>
+          </Field>
+          <div className='relative w-full'>
+            <div className='absolute inset-0 flex items-center'>
+              <span className='w-full border-t' />
+            </div>
+            <div className='relative flex justify-center text-xs uppercase'>
+              <span className='bg-background px-2 text-muted-foreground'>
+                Or continue with
+              </span>
+            </div>
+          </div>
+          <Field className='w-full'>
+            <Button
+              type='button'
+              variant='outline'
+              disabled={ isSubmitting }
+              onClick={ () => handleOAuth2Login('oidc') }
+              className='w-full rounded-sm'>
+              <svg
+                width='18'
+                height='18'
+                viewBox='0 0 24 24'
+                className='mr-2'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'>
+                <path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' />
+              </svg>
+              Continue with Keycloak
             </Button>
           </Field>
         </CardFooter>
@@ -158,5 +208,10 @@ namespace Login {
      * A callback function to submit the UN/PW for login.
      */
     readonly onLogin: (options: api.login.Options) => Promise<void>;
+
+    /**
+     * A callback function for OAuth2 login.
+     */
+    readonly onOAuth2Login: (provider: string) => Promise<void>;
   };
 }
