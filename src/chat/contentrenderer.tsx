@@ -33,6 +33,9 @@ function ContentRenderer(props: ContentRenderer.Props): ReactNode {
   }
 
   // Return the rendered component.
+  //
+  // The markdown elements are formatted in `main.css` based on the
+  // `ot-ChatPlusPlus-markdown` class name. Do not remove it.
   return (
     <div className='ot-ChatPlusPlus-markdown'>
       <Markdown
