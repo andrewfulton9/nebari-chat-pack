@@ -6,8 +6,7 @@ import type {
 } from 'echarts';
 
 import {
-  ChevronRight,
-  Hammer
+  ChevronRight, Hammer
 } from 'lucide-react';
 
 import type {
@@ -71,8 +70,8 @@ function ToolsRenderer(props: ToolsRenderer.Props): ReactNode {
   // Create the HTIL content, if needed.
   const hitl = (
     pausedEvent ?
-      <Private.HITLWrapper pausedEvent={ pausedEvent } /> :
-      null
+    <Private.HITLWrapper pausedEvent={ pausedEvent } /> :
+    null
   );
 
   // Return the rendered component.
@@ -87,7 +86,7 @@ function ToolsRenderer(props: ToolsRenderer.Props): ReactNode {
 
 
 /**
- * The namespace for the `ToolsRenderer` component.
+ * The namespace for the `ToolsRenderer` statics.
  */
 export
 namespace ToolsRenderer {
@@ -139,8 +138,8 @@ namespace Private {
     // Filter the paused event, if there is one at the end of the stream.
     const pausedEvent = (
       events.length > 0 && events[events.length - 1].event === 'RunPaused' ?
-        events[events.length - 1] :
-        null
+      events[events.length - 1] :
+      null
     ) as api.RunPausedEvent | null;
 
     // Return the filtered results.
@@ -189,8 +188,7 @@ namespace Private {
           onClick={ handleClick }
           className={ cn(
             'h-6 rounded-md text-xs bg-bg-neutral-dark cursor-pointer',
-            'hover:bg-bg-neutral-default shadow-none'
-          ) }>
+            'hover:bg-bg-neutral-default shadow-none' ) }>
           <Hammer />
           { `${count} TOOL${count === 1 ? '' : 'S'} CALLED` }
           <ChevronRight />
