@@ -436,7 +436,7 @@ type SessionRun = SessionSummary & {
   /**
    * The event stream for the run.
    */
-  readonly events: readonly unknown[]; // TODO define the events API
+  readonly events: readonly RunEvent[];
 
   /**
    * The user prompt for the run.
@@ -560,16 +560,16 @@ type GetMemoriesResult = {
 
 
 /**
- *
+ * A type alias for an event in a session run.
  */
 export
-type RunEvent = {
+type RunEvent = { // TODO define the events API
 
 };
 
 
 /**
- *
+ * A type alias for the `AbstractApi.createRun(...)` options.
  */
 export
 type CreateRunOptions = {
@@ -578,7 +578,7 @@ type CreateRunOptions = {
 
 
 /**
- *
+ * A type alias for the `AbstractApi.continueRun(...)` options.
  */
 export
 type ContinueRunOptions = {
@@ -587,7 +587,7 @@ type ContinueRunOptions = {
 
 
 /**
- * An interface the defines the API for Chat++.
+ * An interface that defines the API for Chat++.
  *
  * An implementation of this interface is responsible for managing it's own
  * caching as appropriate.
