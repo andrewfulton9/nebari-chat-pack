@@ -12,3 +12,8 @@ export * from './getsession';
 export * from './getsessionruns';
 export * from './listsessions';
 export * from './tools';
+export * from './listknowledge';
+export * from './getknowledge';
+export * from './deleteknowledge';
+export * from './updateknowledge';
+export * from './uploadknowledge';

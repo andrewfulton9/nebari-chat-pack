@@ -15,9 +15,9 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated';
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index';
 import { Route as AuthenticatedMetricsRouteImport } from './routes/_authenticated/metrics';
 import { Route as AuthenticatedMemoriesRouteImport } from './routes/_authenticated/memories';
-import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated/knowledge';
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat';
 import { Route as AuthenticatedSessionsChar123SessionIdChar125RouteImport } from './routes/_authenticated/sessions.{-$sessionId}';
+import { Route as AuthenticatedKnowledgeChar123KnowledgeIdChar125RouteImport } from './routes/_authenticated/knowledge.{-$knowledgeId}';
 
 const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
@@ -48,11 +48,6 @@ const AuthenticatedMemoriesRoute = AuthenticatedMemoriesRouteImport.update({
   path: '/memories',
   getParentRoute: () => AuthenticatedRoute,
 } as any);
-const AuthenticatedKnowledgeRoute = AuthenticatedKnowledgeRouteImport.update({
-  id: '/knowledge',
-  path: '/knowledge',
-  getParentRoute: () => AuthenticatedRoute,
-} as any);
 const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
   id: '/chat',
   path: '/chat',
@@ -64,25 +59,31 @@ const AuthenticatedSessionsChar123SessionIdChar125Route =
     path: '/sessions/{-$sessionId}',
     getParentRoute: () => AuthenticatedRoute,
   } as any);
+const AuthenticatedKnowledgeChar123KnowledgeIdChar125Route =
+  AuthenticatedKnowledgeChar123KnowledgeIdChar125RouteImport.update({
+    id: '/knowledge/{-$knowledgeId}',
+    path: '/knowledge/{-$knowledgeId}',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any);
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute;
   '/logout': typeof LogoutRoute;
   '/chat': typeof AuthenticatedChatRoute;
-  '/knowledge': typeof AuthenticatedKnowledgeRoute;
   '/memories': typeof AuthenticatedMemoriesRoute;
   '/metrics': typeof AuthenticatedMetricsRoute;
   '/': typeof AuthenticatedIndexRoute;
+  '/knowledge/{-$knowledgeId}': typeof AuthenticatedKnowledgeChar123KnowledgeIdChar125Route;
   '/sessions/{-$sessionId}': typeof AuthenticatedSessionsChar123SessionIdChar125Route;
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute;
   '/logout': typeof LogoutRoute;
   '/chat': typeof AuthenticatedChatRoute;
-  '/knowledge': typeof AuthenticatedKnowledgeRoute;
   '/memories': typeof AuthenticatedMemoriesRoute;
   '/metrics': typeof AuthenticatedMetricsRoute;
   '/': typeof AuthenticatedIndexRoute;
+  '/knowledge/{-$knowledgeId}': typeof AuthenticatedKnowledgeChar123KnowledgeIdChar125Route;
   '/sessions/{-$sessionId}': typeof AuthenticatedSessionsChar123SessionIdChar125Route;
 }
 export interface FileRoutesById {
@@ -91,10 +92,10 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute;
   '/logout': typeof LogoutRoute;
   '/_authenticated/chat': typeof AuthenticatedChatRoute;
-  '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute;
   '/_authenticated/memories': typeof AuthenticatedMemoriesRoute;
   '/_authenticated/metrics': typeof AuthenticatedMetricsRoute;
   '/_authenticated/': typeof AuthenticatedIndexRoute;
+  '/_authenticated/knowledge/{-$knowledgeId}': typeof AuthenticatedKnowledgeChar123KnowledgeIdChar125Route;
   '/_authenticated/sessions/{-$sessionId}': typeof AuthenticatedSessionsChar123SessionIdChar125Route;
 }
 export interface FileRouteTypes {
@@ -103,20 +104,20 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/chat'
-    | '/knowledge'
     | '/memories'
     | '/metrics'
     | '/'
+    | '/knowledge/{-$knowledgeId}'
     | '/sessions/{-$sessionId}';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/login'
     | '/logout'
     | '/chat'
-    | '/knowledge'
     | '/memories'
     | '/metrics'
     | '/'
+    | '/knowledge/{-$knowledgeId}'
     | '/sessions/{-$sessionId}';
   id:
     | '__root__'
@@ -124,10 +125,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/_authenticated/chat'
-    | '/_authenticated/knowledge'
     | '/_authenticated/memories'
     | '/_authenticated/metrics'
     | '/_authenticated/'
+    | '/_authenticated/knowledge/{-$knowledgeId}'
     | '/_authenticated/sessions/{-$sessionId}';
   fileRoutesById: FileRoutesById;
 }
@@ -181,13 +182,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMemoriesRouteImport;
       parentRoute: typeof AuthenticatedRoute;
     };
-    '/_authenticated/knowledge': {
-      id: '/_authenticated/knowledge';
-      path: '/knowledge';
-      fullPath: '/knowledge';
-      preLoaderRoute: typeof AuthenticatedKnowledgeRouteImport;
-      parentRoute: typeof AuthenticatedRoute;
-    };
     '/_authenticated/chat': {
       id: '/_authenticated/chat';
       path: '/chat';
@@ -202,24 +196,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSessionsChar123SessionIdChar125RouteImport;
       parentRoute: typeof AuthenticatedRoute;
     };
+    '/_authenticated/knowledge/{-$knowledgeId}': {
+      id: '/_authenticated/knowledge/{-$knowledgeId}';
+      path: '/knowledge/{-$knowledgeId}';
+      fullPath: '/knowledge/{-$knowledgeId}';
+      preLoaderRoute: typeof AuthenticatedKnowledgeChar123KnowledgeIdChar125RouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedChatRoute: typeof AuthenticatedChatRoute;
-  AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute;
   AuthenticatedMemoriesRoute: typeof AuthenticatedMemoriesRoute;
   AuthenticatedMetricsRoute: typeof AuthenticatedMetricsRoute;
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute;
+  AuthenticatedKnowledgeChar123KnowledgeIdChar125Route: typeof AuthenticatedKnowledgeChar123KnowledgeIdChar125Route;
   AuthenticatedSessionsChar123SessionIdChar125Route: typeof AuthenticatedSessionsChar123SessionIdChar125Route;
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedChatRoute: AuthenticatedChatRoute,
-  AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
   AuthenticatedMemoriesRoute: AuthenticatedMemoriesRoute,
   AuthenticatedMetricsRoute: AuthenticatedMetricsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedKnowledgeChar123KnowledgeIdChar125Route:
+    AuthenticatedKnowledgeChar123KnowledgeIdChar125Route,
   AuthenticatedSessionsChar123SessionIdChar125Route:
     AuthenticatedSessionsChar123SessionIdChar125Route,
 };
