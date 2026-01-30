@@ -221,6 +221,7 @@ export function ScheduleRenderer({
                                 {item.subtitle}
                               </div>
                               <div className='mt-1 flex items-center justify-between text-[10px]'>
+                                <span className='text-muted-foreground/80'>{item.footer}</span>
                                 <InfoIcon className='h-3 w-3 opacity-50' />
                               </div>
                             </div>
@@ -323,6 +324,7 @@ export namespace ScheduleRenderer {
         col_id: string;
         title: string;
         subtitle?: string;
+        footer?: string;
         details: { label: string; value: any; type?: 'list' }[];
       }[];
     };
