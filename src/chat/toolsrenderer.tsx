@@ -316,6 +316,13 @@ namespace Private {
 
     // Bail if the result does not have a mime type.
     if (!('mime_type' in result)) {
+      // Support camelCase for updated agents
+      if ('mimeType' in result) {
+         return {
+           mimeType: (result as any).mimeType,
+           data: (result as any).data
+         };
+      }
       return null;
     }
 
