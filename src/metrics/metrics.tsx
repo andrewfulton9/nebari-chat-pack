@@ -27,7 +27,7 @@ import {
 
 
 /**
- * A React component that renders the metrics chart page.
+ * A React component that renders the metrics page.
  */
 export
 function Metrics(): ReactNode {

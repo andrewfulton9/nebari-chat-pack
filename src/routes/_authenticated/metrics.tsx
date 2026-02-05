@@ -72,7 +72,7 @@ const Route = createFileRoute('/_authenticated/metrics')({
   validateSearch: validateSearch,
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) => {
-    // Extract the query client from the context.
+    // Extract the client and API from the context.
     const { client, API } = context;
 
     // Unpack the deps.
