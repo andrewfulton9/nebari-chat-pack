@@ -57,7 +57,7 @@ const Route = createFileRoute('/_authenticated')({
  * The component that renders the authenticated route.
  */
 function RouteComponent(): ReactNode {
-  // Fetch the Agno config object.
+  // Fetch the config object.
   const config = Route.useLoaderData();
 
   // Return the rendered component.

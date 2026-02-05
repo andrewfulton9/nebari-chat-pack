@@ -23,7 +23,7 @@ import {
  */
 export
 function Agents(): ReactNode {
-  // Fetch the Agno OS config.
+  // Fetch the application config.
   const config = useConfig();
 
   // Bail early if there are no configured agents.

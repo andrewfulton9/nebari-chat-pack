@@ -24,12 +24,12 @@ function Explorer(): ReactNode {
       <LinkCard
         to='/chat'
         title='Chat'
-        description='Chat with your agents, teams, and workflows'
+        description='Chat with agents'
         icon={ <MessageSquarePlus size={ 16 } /> } />
       <LinkCard
         to='/sessions'
         title='Sessions'
-        description='View and manage agent, team, and workflow sessions'
+        description='View and manage agent sessions'
         icon={ <MessagesSquare size={ 16 } /> } />
       <LinkCard
         to='/knowledge'
@@ -44,7 +44,7 @@ function Explorer(): ReactNode {
       <LinkCard
         to='/metrics'
         title='Metrics'
-        description='Monitor the usage of agents, teams, and workflows'
+        description='Monitor the usage of tokens, agents, and models'
         icon={ <ChartLine size={ 16 } /> } />
     </div>
   );
