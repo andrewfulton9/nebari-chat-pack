@@ -2,6 +2,6 @@
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
 export * from './config';
-export * from './memory';
+export * from './memories';
 export * from './metrics';
-export * from './session';
+export * from './sessions';
