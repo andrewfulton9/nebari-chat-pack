@@ -21,7 +21,7 @@ import {
 
 import {
   useConfig
-} from '@/context/config';
+} from '@/context';
 
 
 // The schema for the agent search params

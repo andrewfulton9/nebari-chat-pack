@@ -16,7 +16,7 @@ import {
 
 import {
   useConfig
-} from '@/context/config';
+} from '@/context';
 
 import {
   cn

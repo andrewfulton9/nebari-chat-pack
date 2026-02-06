@@ -15,7 +15,7 @@ import * as auth from '@/auth';
 
 import {
   ConfigContext
-} from '@/context/config';
+} from '@/context';
 
 import {
   Sidebar
