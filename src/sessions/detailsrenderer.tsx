@@ -8,6 +8,10 @@ import type {
 import * as api from '@/api';
 
 import {
+  useConfig
+} from '@/config';
+
+import {
   Table, TableBody, TableCell, TableRow
 } from '@/components/ui/table';
 
@@ -20,9 +24,15 @@ function DetailsRenderer(props: DetailsRenderer.Props): ReactNode {
   // Extract the props.
   const { detail } = props;
 
+  // Fetch the application config.
+  const config = useConfig();
+
   // Convert the UTC date strings to date objects.
   const createdAt = new Date(detail.createdAt);
   const updatedAt = new Date(detail.updatedAt);
+
+  // Find the agent detail.
+  const agent = config.agents.find(a => a.agentId === detail.agentId);
 
   // Return the rendered component.
   return (
@@ -34,7 +44,7 @@ function DetailsRenderer(props: DetailsRenderer.Props): ReactNode {
               Agent
             </TableCell>
             <TableCell className='w-[70%] font-semibold'>
-              TODO: Get Agent Name
+              { agent?.agentName ?? 'Undefined' }
             </TableCell>
           </TableRow>
           <TableRow>
@@ -42,7 +52,7 @@ function DetailsRenderer(props: DetailsRenderer.Props): ReactNode {
               Model
             </TableCell>
             <TableCell className='font-semibold'>
-              TODO: Get Model Name
+              { agent?.modelName ?? 'Undefined' }
             </TableCell>
           </TableRow>
           <TableRow>
@@ -50,7 +60,7 @@ function DetailsRenderer(props: DetailsRenderer.Props): ReactNode {
               Model Id
             </TableCell>
             <TableCell className='font-semibold'>
-              TODO: Get Model Name
+              { agent?.modelId ?? 'Undefined' }
             </TableCell>
           </TableRow>
           <TableRow>
@@ -58,7 +68,7 @@ function DetailsRenderer(props: DetailsRenderer.Props): ReactNode {
               Model Provider
             </TableCell>
             <TableCell className='font-semibold'>
-              TODO: Get Model Provider
+              { agent?.modelProvider ?? 'Undefined' }
             </TableCell>
           </TableRow>
           <TableRow>
