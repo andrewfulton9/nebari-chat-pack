@@ -92,6 +92,7 @@ export
 type Config = {
   /**
    * The unique id of the application.
+   * What kind of ID are we expecting here? Is the user required to provide one?
    */
   readonly appId: string;
 
@@ -131,6 +132,8 @@ async function getConfig(): Promise<Config> {
   const configJSON = await configResp.json();
 
   // Fetch the Agno agents.
+  // What is the point of having a dedicated endpoint for agents if they are included in the config?
+  // Are we expecting to call this often so anything extra on the config object might lead to a bandwidth issue?
   const agentsResp = await fetch('/api/agents', {
     headers: { 'Authorization': `Bearer ${auth.getAuthToken()}` }
   });

@@ -110,6 +110,8 @@ async function getMetrics(options: getMetrics.Options): Promise<readonly Metrics
 
   // Create the search params for the request.
   const params = new URLSearchParams();
+  // 1. Should this be camelCase?
+  // 2. Should we drop the '-ing' postfix?
   params.append('starting_date', startDate);
   params.append('ending_date', endDate);
 

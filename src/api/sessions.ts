@@ -236,6 +236,7 @@ type RunCompletedEvent = EventCommon & {
 /**
  * A type alias for the application run events.
  */
+ // Should this be EventType instead?
 export
 type RunEvent = (
   RunStartedEvent |
@@ -335,6 +336,7 @@ type ChatSummaryMessage = {
    * a single run. Markdown is supported, but tool calls are not. This
    * is just the pure text output from the agent for a single run.
    */
+   // should it be 'agent' instead of 'assistant'?
   readonly role: 'user' | 'assistant';
 
   /**
@@ -430,6 +432,8 @@ async function listSessions(_options: listSessions.Options): Promise<SessionsPag
   // Ignore the pagination options for now.
 
   // Fetch the resource.
+  // 1. Should this be role=agent?
+  // 2. What kind of "filtering" do we want by type=agent?
   const resp = await fetch(`/api/sessions?type=agent&sort_by=updated_at`, {
     headers: { 'Authorization': `Bearer ${auth.getAuthToken()}` }
   });
@@ -522,6 +526,8 @@ async function deleteSessions(ids: readonly string[]): Promise<void> {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${auth.getAuthToken()}`
     },
+    // 1. What is a session type? I don't think this was defined before.
+    // 2. CamelCase?
     body: JSON.stringify({ session_ids: ids, session_types }),
   });
 
@@ -589,6 +595,7 @@ async function getSessionDetail(id: string): Promise<SessionDetail> {
  */
 export
 async function getSessionRuns(id: string): Promise<readonly SessionRun[]> {
+    // undefined
   return [];
 }
 

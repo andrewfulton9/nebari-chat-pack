@@ -28,6 +28,7 @@ type Memory = {
    *
    * This will be used for deleting memories in the table.
    */
+   // Should this just be 'id' as the type is already 'Memory'?
   readonly memoryId: string;
 
   /**
@@ -79,6 +80,8 @@ type MemoriesPage = {
    *
    * This must always be `<= limit`.
    */
+   // Can we make this field name generic like 'items' or the like to avoid duplication and enforce the same pagination
+   // schema across the whole API?
   readonly memories: readonly Memory[];
 };
 
@@ -93,6 +96,8 @@ type MemoriesPage = {
 export
 async function getMemories(_options: getMemories.Options): Promise<MemoriesPage> {
   // Ignore the pagination options for now.
+  // How are they going to be transmitted? Given that we GET, I assume query parameters,
+  // but the Options type below is not flat
 
   // Fetch the resource.
   const resp = await fetch('/api/memories', {
@@ -184,6 +189,9 @@ async function deleteMemories(ids: readonly string[]): Promise<void> {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${auth.getAuthToken()}`
     },
+    // 1. Are we expecting batch deletion to be the regular use case?
+    //    If not, I propose we use DELETE /api/memories/{id} instead
+    // 2. Should this be 'memoryIds'?
     body: JSON.stringify({ memory_ids: ids }),
   });
 
