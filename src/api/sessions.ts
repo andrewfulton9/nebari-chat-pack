@@ -13,6 +13,10 @@ import type {
   ReadonlyJSONObject, ReadonlyJSONValue
 } from '@/lib/json';
 
+import {
+  SSEParserStream
+} from '@/lib/sse';
+
 import type {
   TokenMetrics
 } from './metrics';
@@ -620,7 +624,48 @@ async function getSessionRuns(id: string): Promise<readonly SessionRun[]> {
  */
 export
 async function *createRun(options: createRun.Options): AsyncGenerator<RunEvent> {
-  throw 'not implemented';
+  // Extract the options.
+  const { sessionId, agentId, prompt } = options;
+
+  // Create the form data for the request.
+  const fd = new FormData();
+  fd.append('message', prompt);
+  fd.append('stream', 'true');
+  fd.append('session_id', sessionId);
+
+  // Fetch the endpoint.
+  const resp = await fetch(`/api/agents/${agentId}/runs`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${auth.getAuthToken()}` },
+    body: fd
+  });
+
+  // Guard against request failure.
+  if (!resp.ok) {
+    throw new Error(`Response: ${resp.status} ${resp.statusText}`);
+  }
+
+  // Setup the SSE stream parser.
+  const stream = resp.body!
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(new SSEParserStream());
+
+  // Yield the run events.
+  for await (const evt of stream) {
+    // Parse the SSE data into json.
+    const json = JSON.parse(evt.data);
+
+    // Yield only the events that we care about.
+    //
+    // Agno has a bunch of events that we can skip that would fail to parse.
+    //
+    // For now, we just log those skipped events for ease of debugging.
+    if (v.is(Private.runEventSchema, json)) {
+      yield Private.convertRunEvent(json);
+    } else {
+      console.log('skipping Agno event', json);
+    }
+  }
 }
 
 
@@ -635,7 +680,7 @@ namespace createRun {
   export
   type Options = {
     /**
-     * The new session id for the run.
+     * The unique id for the session.
      *
      * This must be a random UUIDv4.
      *
@@ -752,6 +797,7 @@ namespace Private {
   });
 
   // A schema for an Agno run event.
+  export
   const runEventSchema = v.variant('event', [
     runStartedEventSchema,
     runContentEventSchema,

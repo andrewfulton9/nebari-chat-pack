@@ -13,9 +13,9 @@ import type {
   WritableDraft
 } from 'immer';
 
-// import {
-//   produce
-// } from 'immer';
+import {
+  produce
+} from 'immer';
 
 import type {
   PropsWithChildren, ReactNode
@@ -240,68 +240,55 @@ namespace Private {
   async function createRun(
     args: CreateRunArgs, context: MutationFunctionContext
   ): Promise<void> {
-    // // Extract the args.
-    // const { prompt, chatConfig } = args;
+    // Extract the args.
+    const { prompt, chatConfig } = args;
 
-    // // Bail early for unhandled chat types.
-    // //
-    // // TODO handle other chat types.
-    // if (config.type !== 'agent') {
-    //   throw new Error(`Unhandled chat type: ${config.type}`);
-    // }
+    // Extract the agent id.
+    const agentId = chatConfig.agentId;
 
-    // // Bail early if no agent is defined.
-    // if (!config.id) {
-    //   throw new Error('missing agent id');
-    // }
+    // Bail early if the agent id is undefined.
+    if (!agentId) {
+      throw new Error('agent id is undefined');
+    }
 
-    // // Extract the query client.
-    // const client = context.client;
+    // Extract the query client.
+    const client = context.client;
 
-    // // Extract or create the session id.
-    // const sessionId = config.sessionId ?? crypto.randomUUID();
+    // Extract or create the session id.
+    const sessionId = chatConfig.sessionId ?? crypto.randomUUID();
 
-    // // Create the query key for the run.
-    // const queryKey = createQueryKey(sessionId);
+    // Create the query key for the run.
+    const queryKey = createQueryKey(sessionId);
 
-    // // Ensure the chat config is synchronized with the session.
-    // config.update({ type: config.type, id: config.id, sessionId });
+    // Seed the query cache with a new empty run.
+    //
+    // TODO - the api should allow the client to provide the new run id.
+    // The Agno backend does not allow this, so we have to use an empty
+    // run id and then patch it on the first run-started event.
+    client.setQueryData<api.SessionRun[]>(
+      queryKey,
+      prev => [...(prev ?? []), {
+        agentId,
+        createdAt: '',
+        events: [],
+        prompt,
+        runId: ''
+      }]
+    );
 
-    // // Initialize the cache with the new run.
-    // client.setQueryData<api.SessionRuns>(
-    //   queryKey,
-    //   prev => [...(prev ?? []), {
-    //     agent_id: config.id!,
-    //     content: '',
-    //     created_at: '',
-    //     events: [],
-    //     metrics: {
-    //       duration: 0,
-    //       input_tokens: 0,
-    //       output_tokens: 0,
-    //       time_to_first_token: 0,
-    //       total_tokens: 0
-    //     },
-    //     run_id: '',
-    //     run_input: prompt,
-    //     user_id: ''
-    //   }]
-    // );
+    // Ensure the chat config is synchronized with the session.
+    chatConfig.update({ agentId, sessionId });
 
-    // // Set up the event stream for the Agno API.
-    // const stream = api.createAgentRun({
-    //   session_id: sessionId,
-    //   agent_id: config.id,
-    //   message: prompt
-    // });
+    // Set up the event stream for the Agno API.
+    const stream = api.createRun({ sessionId, agentId, prompt });
 
-    // // Handle the stream events from the Agno API.
-    // for await (const evt of stream) {
-    //   client.setQueryData<api.SessionRuns>(
-    //     queryKey,
-    //     produce(draft => { processEvent(evt, draft!); })
-    //   );
-    // }
+    // Handle the stream events from the Agno API.
+    for await (const evt of stream) {
+      client.setQueryData<api.SessionRun[]>(
+        queryKey,
+        produce(draft => { processEvent(evt, draft!); })
+      );
+    }
   }
 
   /**
@@ -366,29 +353,28 @@ namespace Private {
    * @param draft - The AUI thread message draft to modify.
    */
   function processEvent(evt: api.RunEvent, draft: Draft): void {
-    // //
-    // if (draft.length === 0) {
-    //   console.error('Unexpected zero-length session runs array');
-    //   return;
-    // }
+    // Patch the creation time and run id on run started.
+    //
+    // TODO this clause can be eliminated when the backend API supports
+    // allowing the client to specify a new run id. This logic is not
+    // perfect, but it's good enough for now if the backend behaves.
+    if (evt.type === 'run-started') {
+      const run = draft[draft.length - 1];
+      run.createdAt = evt.createdAt;
+      run.runId = evt.runId;
+    }
 
-    // //
-    // const run = draft[draft.length - 1];
+    // Find the matching run for the event.
+    //
+    // This should be a quick match to the most recent run.
+    const run = draft.findLast(run => run.runId === evt.runId);
 
-    // //
-    // if (evt.event === 'RunStarted') {
-    //   run.agent_id = evt.agent_id;
-    //   run.created_at = new Date(evt.created_at).toISOString();
-    //   run.run_id = evt.run_id;
-    // }
+    // Throw an error if the run is not found.
+    if (!run) {
+      throw new Error(`Run id ${evt.runId} not found`);
+    }
 
-    // // TODO patch the run as more info streams in.
-
-    // //
-    // if (run.events) {
-    //   run.events.push(evt);
-    // } else {
-    //   run.events = [evt];
-    // }
+    // Add the event to the run events array.
+    run.events.push(evt);
   }
 }
