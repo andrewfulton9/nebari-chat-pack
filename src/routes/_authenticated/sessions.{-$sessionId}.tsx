@@ -43,7 +43,7 @@ const Route = createFileRoute('/_authenticated/sessions/{-$sessionId}')({
     // TODO this is not fully correct because `listSessions` returns
     // a paginated response which might not include the otherwise valid
     // session id.
-    if (sessionId && !page.sessions.find(s => s.sessionId === sessionId)) {
+    if (sessionId && !page.items.find(s => s.sessionId === sessionId)) {
       throw redirect({
         to: '/sessions/{-$sessionId}',
         params: { sessionId: undefined }
