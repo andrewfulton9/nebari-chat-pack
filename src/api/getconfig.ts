@@ -81,13 +81,13 @@ async function getConfig(): Promise<Config> {
   // If the response is an array (list of agents), wrap it in a synthetic config object
   if (Array.isArray(json)) {
     const syntheticConfig = {
-      os_id: "education-platform",
+      os_id: import.meta.env.VITE_APP_ID || "default-os",
       databases: [],
       agents: json, // The array from /agents matches configDetailSchema structure
       teams: [],
       workflows: [],
-      name: "OpenTeams Education",
-      description: "AI Education Platform"
+      name: import.meta.env.VITE_APP_NAME || "Agent Interface",
+      description: import.meta.env.VITE_APP_DESCRIPTION || "Generic AI Agent Interface"
     };
     return v.parse(configSchema, syntheticConfig);
   }

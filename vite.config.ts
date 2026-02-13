@@ -25,20 +25,20 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [env.VITE_ALLOWED_HOST],
       proxy: {
         '/api': {
-          target: 'http://backend',
+          target: env.VITE_PROXY_TARGET || env.VITE_API_URL || 'http://backend',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, '')
         },
         '/sessions': {
-          target: 'http://backend',
+          target: env.VITE_PROXY_TARGET || env.VITE_API_URL || 'http://backend',
           changeOrigin: true
         },
         '/memories': {
-          target: 'http://backend',
+          target: env.VITE_PROXY_TARGET || env.VITE_API_URL || 'http://backend',
           changeOrigin: true
         },
         '/agents': {
-          target: 'http://backend',
+          target: env.VITE_PROXY_TARGET || env.VITE_API_URL || 'http://backend',
           changeOrigin: true
         }
       }

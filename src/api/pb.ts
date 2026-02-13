@@ -43,5 +43,13 @@ if (authToken) {
 
 // Keep the cookie synced with the auth store.
 pb.authStore.onChange(() => {
-  document.cookie = pb.authStore.exportToCookie({ httpOnly: false, path: '/' });
+  const cookieOptions: any = { httpOnly: false, path: '/' };
+  
+  // If VITE_COOKIE_DOMAIN is set, use it to share auth across subdomains
+  const domain = import.meta.env.VITE_COOKIE_DOMAIN;
+  if (domain) {
+    cookieOptions.domain = domain;
+  }
+
+  document.cookie = pb.authStore.exportToCookie(cookieOptions);
 });
