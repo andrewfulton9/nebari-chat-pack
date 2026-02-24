@@ -6,10 +6,6 @@ import {
 } from 'react';
 
 import {
-  Alerts
-} from './alerts';
-
-import {
   EventsLog
 } from './eventslog';
 
@@ -32,12 +28,13 @@ import {
 export
 function Dashboard(): ReactNode {
   return (
-    <div className='h-full grid gap-2 grid-cols-7 grid-rows-[260px_1fr]'>
-      <Alerts className='col-span-2' />
-      <SensorStatus className='col-span-4' />
-      <FaultInjector />
-      <Tracks className='col-span-4' />
-      <EventsLog className='col-span-3' />
+    <div className='h-full @container'>
+    <div className='h-full grid gap-2 grid-cols-6 @[900px]:grid-cols-8 grid-rows-[260px_1fr]'>
+      <SensorStatus className='col-span-4 @[900px]:col-span-6' />
+      <FaultInjector className='col-span-2' />
+      <Tracks className='col-span-3 @[900px]:col-span-4' />
+      <EventsLog className='col-span-3 @[900px]:col-span-4' />
+    </div>
     </div>
   );
 }

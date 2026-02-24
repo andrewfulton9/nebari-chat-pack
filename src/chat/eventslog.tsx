@@ -100,15 +100,20 @@ namespace Private {
     header: 'Summary',
     cell: cellContext => {
       const type = cellContext.row.original.type;
+      const summary = cellContext.getValue();
       const className = (
-        type === 'track_update' ?
-        'text-red-700' :
+        type === 'alert' && summary.includes('CLEARED') ?
+        'text-green-700' :
+        type === 'alert' ?
+        'text-red-600' :
+        type === 'sensor_health' && (summary.includes('degraded') || summary.includes('down')) ?
+        'text-red-600' :
         type === 'sensor_health' ?
         'text-green-700' :
         ''
       );
       return (
-        <span className={ className }>
+        <span className={ cn(className, 'block truncate') }>
           { cellContext.getValue() }
         </span>
       );
@@ -155,7 +160,7 @@ namespace Private {
     // Create the column -> className mapping.
     const classNames = {
       summary: '',
-      ts: 'w-35'
+      ts: 'w-24'
     } as Record<string, string>;
 
     // Iterate the header groups to create the header rows.

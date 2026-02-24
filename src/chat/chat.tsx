@@ -32,7 +32,7 @@ function Chat(): ReactNode {
       <div className='p-2 grow bg-bg-neutral-default overflow-auto'>
         <Dashboard />
       </div>
-      <div className='flex flex-col w-120 shrink-0 border-l'>
+      <div className='flex flex-col w-80 shrink-0 border-l'>
         <Header />
         <div className='grow min-h-0'>
           <AUIProvider>

@@ -6,7 +6,8 @@ import {
 } from '@tanstack/react-table';
 
 import {
-  type ReactNode
+  type ReactNode,
+  useState
 } from 'react';
 
 import {
@@ -34,18 +35,28 @@ function Alerts(props: Alerts.Props): ReactNode {
   // Extract the props.
   const { className } = props;
 
+  // Collapsed state — collapsed by default.
+  const [collapsed, setCollapsed] = useState(true);
+
   // Return the rendered component.
   return (
     <Card className={ cn(
-      'min-w-0 min-h-40 gap-2 py-4 rounded-sm', className) }>
-      <CardHeader className='px-4'>
+      'min-w-0 gap-2 py-4 rounded-sm', collapsed ? 'h-fit' : 'min-h-40', className) }>
+      <CardHeader className='px-4 flex flex-row items-center justify-between'>
         <CardTitle>
           Alerts
         </CardTitle>
+        <button
+          onClick={ () => setCollapsed(c => !c) }
+          className='text-xs text-muted-foreground hover:text-foreground cursor-pointer'>
+          { collapsed ? '▶ Show' : '▼ Hide' }
+        </button>
       </CardHeader>
-      <CardContent className='px-4 grow min-h-0 flex flex-col'>
-        <Private.DataTable />
-      </CardContent>
+      { !collapsed && (
+        <CardContent className='px-4 grow min-h-0 flex flex-col'>
+          <Private.DataTable />
+        </CardContent>
+      )}
     </Card>
   );
 }
