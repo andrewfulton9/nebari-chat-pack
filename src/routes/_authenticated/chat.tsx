@@ -6,10 +6,10 @@ import {
 } from '@tanstack/react-router';
 
 import {
-  useCallback
+  useCallback, useState
 } from 'react';
 
-import * as v from 'valibot';
+import * as z from 'zod';
 
 import {
   Chat
@@ -20,15 +20,17 @@ import type {
 } from '@/context';
 
 import {
-  ChatConfigContext, useConfig
+  ChatConfigContext, useAppConfig
 } from '@/context';
 
+import {
+  threadQuery
+} from '@/queries';
 
 
 // The schema for the `/chat` route search params
-const searchSchema = v.object({
-  agentId: v.optional(v.string()),
-  sessionId: v.optional(v.string())
+const searchSchema = z.object({
+  threadId: z.string().optional()
 });
 
 
@@ -38,7 +40,12 @@ const searchSchema = v.object({
 export
 const Route = createFileRoute('/_authenticated/chat')({
   validateSearch: searchSchema,
-  component: RouteComponent,
+  loaderDeps: ({ search }) => search,
+  loader: ({ context, deps }) => {
+    const query = threadQuery(deps.threadId);
+    return context.client.fetchQuery(query);
+  },
+  component: RouteComponent
 });
 
 
@@ -46,25 +53,39 @@ const Route = createFileRoute('/_authenticated/chat')({
  * The component that renders the `/chat` route.
  */
 function RouteComponent() {
-  // Fetch the agents from the application config.
-  const { agents } = useConfig();
-
-  // Fetch the search parameters.
-  const { agentId, sessionId } = Route.useSearch();
+  // Fetch the loaded thread.
+  const thread = Route.useLoaderData();
 
   // Fetch the navigator.
   const navigate = Route.useNavigate();
 
-  // Create the callback for updating the chat config.
-  const update = useCallback((options: ChatConfig.UpdateOptions) => {
-    navigate({ search: { ...options } });
+  // Fetch the available agents.
+  const { agents } = useAppConfig();
+
+  // Create the internal state for the user's agent selection.
+  const [$agentId, $setAgentId] = useState('');
+
+  // Create the callback for setting the thread id.
+  const setThreadId = useCallback((threadId: string | undefined) => {
+    navigate({ search: { threadId } });
   }, []);
 
-  // Determine the agent id to use.
-  const $agentId = agentId ?? agents[0]?.agentId ?? '';
+  // Create the callback for setting the agent id.
+  const setAgentId = useCallback((agentId: string) => {
+    if (agents.some(a => a.id === agentId)) {
+      $setAgentId(agentId);
+    }
+  }, [agents]);
+
+  // Compute the effective agent id.
+  const agentId = (
+    thread ? thread.agentId :
+    $agentId ? $agentId :
+    agents[0]?.id ?? ''
+  );
 
   // Create the chat config.
-  const chatConfig: ChatConfig = { agentId: $agentId, sessionId, update };
+  const chatConfig: ChatConfig = { thread, setThreadId, agentId, setAgentId };
 
   // Return the rendered component.
   return (

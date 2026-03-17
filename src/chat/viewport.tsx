@@ -1,6 +1,10 @@
 /*-----------------------------------------------------------------------------
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
+import {
+  useQuery
+} from '@tanstack/react-query';
+
 import type {
   PropsWithChildren, ReactNode, RefObject
 } from 'react';
@@ -10,8 +14,12 @@ import {
 } from 'react';
 
 import {
-  useChatRuntime
-} from './chatruntime';
+  useChatConfig
+} from '@/context';
+
+import {
+  threadMessagesQuery
+} from '@/queries';
 
 
 /**
@@ -50,8 +58,14 @@ namespace Private {
     // Define the type for the scroll state.
     type ScrollState = 'auto' | 'user';
 
-    // Fetch the runs from the chat runtime.
-    const { runs } = useChatRuntime();
+    // Fetch the thread from the chat config.
+    const { thread } = useChatConfig();
+
+    // Create the query for the thread messages.
+    const query = threadMessagesQuery(thread?.id);
+
+    // Fetch the current messages.
+    const { data: messages } = useQuery(query);
 
     // Create the ref object for the tracking div.
     const ref = useRef<HTMLDivElement>(null);
@@ -91,10 +105,10 @@ namespace Private {
       return () => { div.removeEventListener('scroll', onScroll); };
     }, []);
 
-    // Create an effect that switches the scroll state to auto on new runs.
+    // Create an effect that switches the scroll state to auto on new messages.
     //
     // Whenever a new run is started, this effect will switch the scroll
-    // state to `auto` so that the new run is scrolled to the bottom.
+    // state to `auto` so that the new message is scrolled to the bottom.
     useEffect(() => {
       // Fetch the target div from the ref.
       const div = ref.current;
@@ -106,9 +120,9 @@ namespace Private {
 
       // Set the scroll state to auto.
       setScrollState('auto');
-    }, [runs.length]);
+    }, [messages?.length]);
 
-    // Create an effect that scrolls the div on new run input.
+    // Create an effect that scrolls the div on new messages.
     //
     // If the scroll state is set to `auto`, then the div will be scrolled
     // to the bottom on new run input.
@@ -128,7 +142,7 @@ namespace Private {
 
       // Scroll the div to the bottom.
       div.scrollTop = div.scrollHeight;
-    }, [scrollState, runs]);
+    }, [scrollState, messages]);
 
     // Return the ref for tagging onto the chat viewport.
     return ref;

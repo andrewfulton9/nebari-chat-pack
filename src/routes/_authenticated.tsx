@@ -9,13 +9,15 @@ import type {
   ReactNode,
 } from 'react';
 
-import * as api from '@/api';
-
 import * as auth from '@/auth';
 
 import {
-  ConfigContext
+  AppConfigContext
 } from '@/context';
+
+import {
+  appConfigQuery
+} from '@/queries';
 
 import {
   Sidebar
@@ -36,18 +38,11 @@ export
 const Route = createFileRoute('/_authenticated')({
   beforeLoad: ({ location }) => {
     if (AUTH_ENABLED && auth.getUser() === null) {
-      throw redirect({
-        to: '/login',
-        search: { redirect: location.href },
-      });
+      throw redirect({ to: '/login', search: { redirect: location.href } });
     }
   },
   loader: ({ context }) => {
-    return context.client.ensureQueryData({
-      queryKey: ['config'],
-      queryFn: api.getConfig,
-      staleTime: 'static'
-    });
+    return context.client.fetchQuery(appConfigQuery);
   },
   component: RouteComponent
 });
@@ -57,14 +52,14 @@ const Route = createFileRoute('/_authenticated')({
  * The component that renders the authenticated route.
  */
 function RouteComponent(): ReactNode {
-  // Fetch the config object.
-  const config = Route.useLoaderData();
+  // Fetch the app config object.
+  const appConfig = Route.useLoaderData();
 
   // Return the rendered component.
   return (
-    <ConfigContext value={ config }>
+    <AppConfigContext value={ appConfig }>
       <Sidebar />
       <Outlet />
-    </ConfigContext>
+    </AppConfigContext>
   );
 }

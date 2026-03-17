@@ -26,7 +26,7 @@ const QuickPromptSchema = z.object({
    *
    * This is used to render the description of the quick prompt card.
    */
-  description: z.string(),
+  description: z.string().optional(),
 
   /**
    * The actual user input for the quick prompt.
@@ -60,7 +60,7 @@ const AgentConfigSchema = z.object({
   /**
    * The human readable name of the agent.
    */
-  name: z.string(),
+  name: z.string().optional(),
 
   /**
    * The description for the agent.
@@ -68,7 +68,7 @@ const AgentConfigSchema = z.object({
    * This is a short description of what the agent does and will be shown
    * at the start of an empty session.
    */
-  description: z.string(),
+  description: z.string().optional(),
 
   /**
    * The quick prompts to show for the agent in a new empty chat.
@@ -88,12 +88,7 @@ type AgentConfig = z.infer<typeof AgentConfigSchema>;
  * The schema for the global application config.
  */
 export
-const ConfigSchema = z.object({
-  /**
-   * The human readable name of the application.
-   */
-  appName: z.string(),
-
+const AppConfigSchema = z.object({
   /**
    * The agents available to the application.
    */
@@ -105,7 +100,7 @@ const ConfigSchema = z.object({
  * A type alias for the global application config.
  */
 export
-type Config = z.infer<typeof ConfigSchema>;
+type AppConfig = z.infer<typeof AppConfigSchema>;
 
 
 /**
@@ -114,7 +109,7 @@ type Config = z.infer<typeof ConfigSchema>;
  * @returns The global application config.
  */
 export
-async function getConfig(): Promise<Config> {
+async function getAppConfig(): Promise<AppConfig> {
   // Fetch the resource.
   const resp = await fetch('/api/config', {
     headers: { 'Authorization': `Bearer ${auth.getAuthToken()}` }
@@ -126,5 +121,5 @@ async function getConfig(): Promise<Config> {
   }
 
   // Return the parsed result.
-  return ConfigSchema.parse(await resp.json());
+  return AppConfigSchema.parse(await resp.json());
 }

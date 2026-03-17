@@ -16,5 +16,5 @@ const Route = createFileRoute('/logout')({
   beforeLoad: () => {
     auth.logout();
     throw redirect({ to: '/' });
-  },
+  }
 });

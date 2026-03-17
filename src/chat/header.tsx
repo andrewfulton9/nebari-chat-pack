@@ -14,16 +14,12 @@ import {
 } from '@/components/ui/select';
 
 import {
-  useChatConfig, useConfig
+  useAppConfig, useChatConfig
 } from '@/context';
 
 import {
   cn
 } from '@/lib/utils';
-
-import {
-  useChatRuntime
-} from './chatruntime';
 
 
 /**
@@ -33,8 +29,8 @@ export
 function Header(): ReactNode {
   return (
     <div className='px-4 py-2 flex flex-row border-b border-bd-neutral-default'>
-      <Private.ChatSelect />
-      <Private.ChatSession />
+      <Private.AgentSelect />
+      <Private.ThreadName />
       <div className='grow' />
       <Private.NewChatLink />
     </div>
@@ -47,38 +43,37 @@ function Header(): ReactNode {
  */
 namespace Private {
   /**
-   * A react component that renders the agent/team/workflow select.
+   * A react component that renders the agent selector.
    */
   export
-  function ChatSelect(): ReactNode {
-    // Fetch the os config.
-    const config = useConfig();
+  function AgentSelect(): ReactNode {
+    // Fetch the agents from the app config.
+    const { agents } = useAppConfig();
 
-    // Fetch the chat config.
-    const chatConfig = useChatConfig();
+    // Fetch the thread id setter from the chat config.
+    const { agentId, setAgentId, setThreadId } = useChatConfig();
 
-    // Create the value for the select.
-    const value = chatConfig.agentId;
-
-    // Setup the callback to handle the select change.
+    // Create the callback for the value change.
     const handleValueChange = (value: string) => {
-      if (value) {
-        chatConfig.update({ agentId: value });
-      }
+      // Clear the current thread.
+      setThreadId(undefined);
+
+      // Set the new agent id.
+      setAgentId(value);
     };
 
     // Create the items for the selector
-    const items = config.agents.map(agent => (
+    const items = agents.map(agent => (
       <SelectItem
-        key={ agent.agentId }
-        value={ agent.agentId }>
-        { agent.agentName }
+        key={ agent.id }
+        value={ agent.id }>
+        { agent.name ?? agent.id }
       </SelectItem>
     ));
 
     // Return the rendered component.
     return (
-      <Select value={ value } onValueChange={ handleValueChange }>
+      <Select value={ agentId } onValueChange={ handleValueChange }>
         <SelectTrigger
           size='sm'
           className={ cn(
@@ -95,38 +90,36 @@ namespace Private {
   }
 
   /**
-   * A React component that renders the chat session id.
+   * A React component that renders the thread name.
    */
   export
-  function ChatSession(): ReactNode {
-    // Fetch the runs from the chat runtime.
-    const { runs } = useChatRuntime();
+  function ThreadName(): ReactNode {
+    // Fetch the current thread.
+    const { thread } = useChatConfig();
 
-    // Bail if there are no runs.
-    if (runs.length === 0) {
+    // Bail if there is no current thread.
+    if (!thread) {
       return null;
     }
 
     // Return the rendered component.
     return (
       <div className='px-4 flex items-center'>
-        { runs[0].prompt }
+        { thread.name }
       </div>
     );
   }
 
   /**
    * A react component that renders a link to create a new chat.
-   *
-   * This link will retain the currently selected agent.
    */
   export
   function NewChatLink(): ReactNode {
-    // Fetch the chat config.
-    const { agentId, sessionId } = useChatConfig();
+    // Fetch the current thread.
+    const { thread } = useChatConfig();
 
     // Determine whether the link should be disabled.
-    const isDisabled = sessionId === undefined;
+    const isDisabled = thread === null;
 
     // Return the rendered component.
     return (
@@ -136,8 +129,8 @@ namespace Private {
           'h-7 w-24 flex justify-center items-center rounded-sm text-white',
           isDisabled ? 'bg-bd-brand-default/50' : 'bg-bd-brand-default'
         ) }
-        disabled={ sessionId === undefined }
-        search={ { agentId } }>
+        disabled={ isDisabled }
+        search={ { threadId: undefined } }>
         New Chat
       </Link>
     );

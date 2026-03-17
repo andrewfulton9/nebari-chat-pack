@@ -9,20 +9,20 @@ import * as api from '@/api';
 
 
 /**
- * The api config context.
+ * The app config context.
  */
 export
-const ConfigContext = createContext<api.Config | undefined>(undefined);
+const AppConfigContext = createContext<api.AppConfig | undefined>(undefined);
 
 
 /**
- * A hook which returns the api config.
+ * A hook which returns the app config.
  */
 export
-function useConfig(): api.Config {
-  const config = useContext(ConfigContext);
+function useAppConfig(): api.AppConfig {
+  const config = useContext(AppConfigContext);
   if (config === undefined) {
-    throw new Error('`useConfig` must be called within a `ConfigContext`');
+    throw new Error('`useAppConfig` must be called within an `AppConfigContext`');
   }
   return config;
 }

@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/table';
 
 import {
-  useSessions
+  useHistory
 } from '@/context';
 
 import {
@@ -41,16 +41,16 @@ import {
 
 
 /**
- * A React component that renders a sessions table.
+ * A React component that renders the threads table.
  */
 export
-function SessionsTable(): ReactNode {
-  // Fetch the memories config.
-  const { page } = useSessions();
+function ThreadsTable(): ReactNode {
+  // Fetch the threads page.
+  const { page } = useHistory();
 
   // Create the data table model.
   const table = useReactTable({
-    data: page.items as api.SessionDetail[],  // dumb cast required for Tanstack
+    data: page.items as api.Thread[],
     columns: Private.columns,
     getCoreRowModel: getCoreRowModel()
   });
@@ -60,7 +60,7 @@ function SessionsTable(): ReactNode {
 
   // Create the column -> className mapping.
   const classNames = {
-    session_name: 'w-[100%]'
+    name: 'w-[100%]'
   } as Record<string, string>;
 
   // Iterate the header groups to create the header rows.
@@ -109,14 +109,14 @@ function SessionsTable(): ReactNode {
     bodyRows.push(<TableRow key={ row.id }>{ cells }</TableRow>);
   }
 
-  // Insert a placeholder row when there are no sessions.
+  // Insert a placeholder row when there are no threads.
   if (bodyRows.length === 0) {
     bodyRows.push(
-      <TableRow key={ `no_sessions_found` }>
+      <TableRow key={ `no_threads_found` }>
         <TableCell
           colSpan={ table.getAllColumns().length }
           className='text-center text-muted-foreground'>
-          No sessions found.
+          No threads found.
         </TableCell>
       </TableRow>
     );
@@ -148,7 +148,7 @@ namespace Private {
   /**
    * Create the helper for defining the columns.
    */
-  const columnHelper = createColumnHelper<api.SessionDetail>();
+  const columnHelper = createColumnHelper<api.Thread>();
 
   /**
    * Create the column for the selection check boxes.
@@ -190,11 +190,11 @@ namespace Private {
   /**
    * Create the column to display the memory text data.
    */
-  const nameColumn = columnHelper.accessor('sessionName', {
+  const nameColumn = columnHelper.accessor('name', {
     header: 'Name',
     cell: cellContext => {
       const row = cellContext.row;
-      const sessionId = row.original.sessionId;
+      const threadId = row.original.id;
       const activeProps = {
         className: 'text-bd-brand-default font-semibold'
       };
@@ -202,10 +202,10 @@ namespace Private {
         <p className='whitespace-pre-wrap'>
           <Link
             className='block'
-            to='/sessions/{-$sessionId}'
-            params={ { sessionId } }
+            to='/chat'
+            search={ { threadId } }
             activeProps={ activeProps }>
-            { cellContext.getValue() || 'Untitled Session' }
+            { cellContext.getValue() || 'Untitled Thread' }
           </Link>
         </p>
       );
@@ -218,10 +218,12 @@ namespace Private {
   const updatedAtColumn = columnHelper.accessor('updatedAt', {
     header: 'Updated At',
     cell: cellContext => {
-      const date = new Date(cellContext.getValue());
+      const original = cellContext.row.original;
+      const ts = original.updatedAt ?? original.createdAt;
+      const dateStr = (new Date(ts)).toLocaleString();
       return (
         <span className='whitespace-nowrap text-xs text-muted-foreground'>
-          { date.toLocaleString() }
+          { dateStr }
         </span>
       );
     },
@@ -245,7 +247,7 @@ namespace Private {
     /**
      * The Tanstack table instance for the page.
      */
-    readonly table: TSTable<api.SessionDetail>;
+    readonly table: TSTable<api.Thread>;
   };
 
   /**
@@ -256,8 +258,8 @@ namespace Private {
     // Extract the props.
     const { table } = props;
 
-    // Fetch the sessions config.
-    const { deleteSessions } = useSessions();
+    // Fetch the delete threads handler.
+    const { deleteThreads } = useHistory();
 
     // Fetch the needed info from the table.
     const rowCount = table.getRowModel().rows.length;
@@ -276,15 +278,15 @@ namespace Private {
 
     // Create the callback to handle deleting the selection.
     const handleDelete = () => {
-      // Fetch the ids of the memories to delete.
+      // Fetch the ids of the threads to delete.
       const rows = table.getSelectedRowModel().rows;
-      const ids = rows.map(row => row.original.sessionId);
+      const ids = rows.map(row => row.original.id);
 
       // Clear the selected rows.
       table.resetRowSelection();
 
-      // Delete the memories on the server.
-      deleteSessions(ids);
+      // Delete the threads on the server.
+      deleteThreads(ids);
     };
 
     // Return the rendered component.

@@ -5,6 +5,8 @@ import {
   createContext, useContext
 } from 'react';
 
+import * as api from '@/api';
+
 
 /**
  * The configuration for a chat.
@@ -12,45 +14,33 @@ import {
 export
 type ChatConfig = {
   /**
-   * The unique id of the selected agent.
+   * The thread object loaded for the URL `threadId` search param.
+   */
+  readonly thread: api.Thread | null;
+
+  /**
+   * A callback to set the thread id.
+   *
+   * This will cause the URL to update and a new `Thread` to be loaded.
+   */
+  readonly setThreadId: (threadId: string | undefined) => void;
+
+  /**
+   * The agent id for the chat.
+   *
+   * This is locked to the loaded thread object.
+   *
+   * If the thread is null, the user's agent choice will prevail.
    */
   readonly agentId: string;
 
   /**
-   * The unique id for the thread.
+   * A callback to set the agent id for creating new threads.
+   *
+   * This will ignore an invalid agent id.
    */
-  readonly threadId: string | undefined;
-
-  /**
-   * A callback to update the chat config.
-   */
-  readonly update: (options: ChatConfig.UpdateOptions) => void;
+  readonly setAgentId: (agentId: string) => void;
 };
-
-
-/**
- * The namespace for the `ChatConfig` statics.
- */
-export
-namespace ChatConfig {
-  /**
-   * A type alias for the `update()` options.
-   */
-  export
-  type UpdateOptions = {
-    /**
-     * The unique id of the agent.
-     */
-    readonly agentId: string;
-
-    /**
-     * The unique id for the thread.
-     *
-     * If this is not provided, the previous thread will be cleared.
-     */
-    readonly threadId?: string;
-  };
-}
 
 
 /**

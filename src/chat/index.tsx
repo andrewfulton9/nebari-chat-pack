@@ -14,10 +14,6 @@ import {
 } from './chatoutput';
 
 import {
-  ChatRuntimeProvider
-} from './chatruntime';
-
-import {
   Header
 } from './header';
 
@@ -28,18 +24,18 @@ import {
 
 /**
  * A component that renders the chat panel.
+ *
+ * This component must be wrapped in a `ChatConfigContext`.
  */
 export
 function Chat(): ReactNode {
   return (
     <main className='grow flex flex-col'>
-      <ChatRuntimeProvider>
-        <Header />
-        <Viewport>
-          <ChatOutput />
-          <ChatInput />
-        </Viewport>
-      </ChatRuntimeProvider>
+      <Header />
+      <Viewport>
+        <ChatOutput />
+        <ChatInput />
+      </Viewport>
     </main>
   );
 }

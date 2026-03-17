@@ -5,22 +5,24 @@ import type {
   ReactNode
 } from 'react';
 
+import {
+  ThreadsTable
+} from './threadstable';
+
 
 /**
- * A React component that renders system knowledge.
+ * A React component that renders the session history page.
  */
 export
-function Knowledge(): ReactNode {
+function History(): ReactNode {
   return (
     <main className='grow flex flex-col'>
       <div className='px-4 py-2 border-b border-bd-neutral-default'>
         <h2 className='text-lg font-semibold'>
-          Knowledge
+          History
         </h2>
       </div>
-      <div className='p-4 grow min-h-0 overflow-y-auto'>
-        This page is not yet implemented.
-      </div>
+      <ThreadsTable />
     </main>
   );
 }

@@ -21,10 +21,10 @@ import {
 
 
 /**
- * The schema for metadata about a thread.
+ * The schema for a thread.
  */
 export
-const ThreadMetadataSchema = z.object({
+const ThreadSchema = z.object({
   /**
    * The unique id of the thread.
    */
@@ -33,7 +33,7 @@ const ThreadMetadataSchema = z.object({
   /**
    * The human readable name of the thread.
    */
-  name: z.string(),
+  name: z.string().optional(),
 
   /**
    * The unique id of the agent for the thread.
@@ -48,97 +48,51 @@ const ThreadMetadataSchema = z.object({
   /**
    * The ISO UTC timestamp of the most recent update.
    */
-  updatedAt: z.string().datetime()
+  updatedAt: z.string().datetime().optional(),
 });
 
 
 /**
- * A type alias for metadata about a thread.
- */
-export
-type ThreadMetadata = z.infer<typeof ThreadMetadataSchema>;
-
-
-/**
- * The schema for a thread metadata page.
- */
-export
-const ThreadMetadataPageSchema = createPageSchema(ThreadMetadataSchema);
-
-
-/**
- * A type alias for a thread metadata page.
- */
-export
-type ThreadMetadataPage = z.infer<typeof ThreadMetadataPageSchema>;
-
-
-/**
- * The schema for detailed information about a thread.
- */
-export
-const ThreadSchema = ThreadMetadataSchema.extend({
-  /**
-   * The ag-ui messages for the thread.
-   */
-  messages: z.array(agui.MessageSchema)
-});
-
-
-/**
- * A type alias for detailed information about a thread.
+ * A type alias for a thread.
  */
 export
 type Thread = z.infer<typeof ThreadSchema>;
 
 
 /**
- * Fetch a page of `ThreadMetadata` objects.
- *
- * @params options - The pagination options for the query.
- *
- * @returns A thread metadata page subject to the query.
+ * The schema for a thread page.
  */
 export
-async function getThreadsMetadata(options: PaginationOptions<ThreadMetadata>): Promise<ThreadMetadataPage> {
-  // Create the search params.
-  const params = new URLSearchParams();
-
-  // Convert the options to search params.
-  if (options.pageSize !== undefined) {
-    params.append('pageSize', `${options.pageSize}`);
-  }
-  if (options.pageNumber !== undefined) {
-    params.append('pageNumber', `${options.pageNumber}`);
-  }
-  if (options.sortBy !== undefined) {
-    params.append('sortBy', options.sortBy);
-  }
-  if (options.sortOrder !== undefined) {
-    params.append('sortOrder', options.sortOrder);
-  }
-
-  // Fetch the resource.
-  const resp = await fetch(`/api/threads/metadata?${params}`, {
-    headers: { 'Authorization': `Bearer ${auth.getAuthToken()}` }
-  });
-
-  // Guard against request failure.
-  if (!resp.ok) {
-    throw new Error(`Response: ${resp.status} ${resp.statusText}`);
-  }
-
-  // Return the parsed result.
-  return ThreadMetadataPageSchema.parse(await resp.json());
-}
+const ThreadPageSchema = createPageSchema(ThreadSchema);
 
 
 /**
- * Fetch the details of a single thread.
+ * A type alias for a thread page.
+ */
+export
+type ThreadPage = z.infer<typeof ThreadPageSchema>;
+
+
+/**
+ * The schema for thread messages.
+ */
+export
+const ThreadMessagesSchema = z.array(agui.MessageSchema);
+
+
+/**
+ * A type alias for detailed information about a thread.
+ */
+export
+type ThreadMessages = z.infer<typeof ThreadMessagesSchema>;
+
+
+/**
+ * Fetch a single `Thread` object.
  *
  * @params threadId - The unique id of the thread.
  *
- * @returns The requested thread detail object.
+ * @returns The requested thread object.
  */
 export
 async function getThread(threadId: string): Promise<Thread> {
@@ -158,16 +112,94 @@ async function getThread(threadId: string): Promise<Thread> {
 
 
 /**
+ * Get the messages for a particular thread.
+ *
+ * @params threadId - The unique id of the thread.
+ *
+ * @returns The messages for the thread.
+ */
+export
+async function getThreadMessages(threadId: string): Promise<ThreadMessages> {
+  // Fetch the resource.
+  const resp = await fetch(`/api/threads/${threadId}/messages`, {
+    headers: { 'Authorization': `Bearer ${auth.getAuthToken()}` }
+  });
+
+  // Guard against request failure.
+  if (!resp.ok) {
+    throw new Error(`Response: ${resp.status} ${resp.statusText}`);
+  }
+
+  // Return the parsed result.
+  return ThreadMessagesSchema.parse(await resp.json());
+}
+
+
+/**
+ * Fetch a page of `Thread` objects.
+ *
+ * @params options - The pagination options for the query.
+ *
+ * @returns A thread page subject to the query.
+ */
+export
+async function getThreadPage(options: getThreadPage.Options): Promise<ThreadPage> {
+  // Create the search params.
+  const params = new URLSearchParams();
+
+  // Convert the options to search params.
+  if (options.pageSize !== undefined) {
+    params.append('pageSize', `${options.pageSize}`);
+  }
+  if (options.pageNumber !== undefined) {
+    params.append('pageNumber', `${options.pageNumber}`);
+  }
+  if (options.sortBy !== undefined) {
+    params.append('sortBy', options.sortBy);
+  }
+  if (options.sortOrder !== undefined) {
+    params.append('sortOrder', options.sortOrder);
+  }
+
+  // Fetch the resource.
+  const resp = await fetch(`/api/threads?${params}`, {
+    headers: { 'Authorization': `Bearer ${auth.getAuthToken()}` }
+  });
+
+  // Guard against request failure.
+  if (!resp.ok) {
+    throw new Error(`Response: ${resp.status} ${resp.statusText}`);
+  }
+
+  // Return the parsed result.
+  return ThreadPageSchema.parse(await resp.json());
+}
+
+
+/**
+ * The namespace for the `getThreadPage` statics.
+ */
+export
+namespace getThreadPage {
+  /**
+   * A type alias for the `getThreadPage()` options.
+   */
+  export
+  type Options = PaginationOptions<Thread>;
+}
+
+
+/**
  * A create a new empty thread prior to running user input.
  *
  * @param options - The options for creating the thread.
  *
- * @returns The new empty thread.
+ * @returns The new `Thread` object.
  */
 export
 async function createThread(options: createThread.Options): Promise<Thread> {
   // Fetch the resource.
-  const resp = await fetch(`/api/threads`, {
+  const resp = await fetch('/api/threads', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${auth.getAuthToken()}`,
@@ -204,8 +236,32 @@ namespace createThread {
     /**
      * The human readable name of the thread.
      */
-    readonly name: string;
+    readonly name?: string;
   };
+}
+
+
+/**
+ * Delete threads on the server.
+ *
+ * @param threadIds - The ids of the threads to delete.
+ */
+export
+async function deleteThreads(threadIds: readonly string[]): Promise<void> {
+  // Fetch the resource.
+  const resp = await fetch('/api/threads', {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${auth.getAuthToken()}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ ids: threadIds })
+  });
+
+  // Guard against request failure.
+  if (!resp.ok) {
+    throw new Error(`Response: ${resp.status} ${resp.statusText}`);
+  }
 }
 
 
