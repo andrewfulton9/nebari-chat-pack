@@ -55,6 +55,8 @@ function RouteComponent(): ReactNode {
   // Fetch the app config object.
   const appConfig = Route.useLoaderData();
 
+  // TODO show an error page if there are no configured agents.
+
   // Return the rendered component.
   return (
     <AppConfigContext value={ appConfig }>

@@ -14,11 +14,11 @@ import {
 } from 'react';
 
 import type {
-  HistoryContextValue
+  HistoryConfig
 } from '@/context';
 
 import {
-  HistoryContext
+  HistoryConfigContext
 } from '@/context';
 
 import {
@@ -36,6 +36,7 @@ import {
 export
 const Route = createFileRoute('/_authenticated/history')({
   loader: ({ context }) => {
+    // TODO - support pagination query params
     const query = threadPageQuery({});
     return context.client.fetchQuery(query);
   },
@@ -65,13 +66,13 @@ function RouteComponent() {
     await router.invalidate();
   }, [mutateAsync, router]);
 
-  // Create the context value.
-  const value: HistoryContextValue = { page, deleteThreads };
+  // Create the history config.
+  const config: HistoryConfig = { page, deleteThreads };
 
   // Return the rendered component.
   return (
-    <HistoryContext value={ value }>
+    <HistoryConfigContext value={ config }>
       <History />
-    </HistoryContext>
+    </HistoryConfigContext>
   );
 }

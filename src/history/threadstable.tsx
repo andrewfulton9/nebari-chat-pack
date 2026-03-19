@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/table';
 
 import {
-  useHistory
+  useHistoryConfig
 } from '@/context';
 
 import {
@@ -45,8 +45,8 @@ import {
  */
 export
 function ThreadsTable(): ReactNode {
-  // Fetch the threads page.
-  const { page } = useHistory();
+  // Fetch the thread page.
+  const { page } = useHistoryConfig();
 
   // Create the data table model.
   const table = useReactTable({
@@ -80,7 +80,8 @@ function ThreadsTable(): ReactNode {
           key={ header.id }
           className={ classNames[header.id] }>
           { content }
-        </TableHead>);
+        </TableHead>
+      );
     }
 
     // Create and add the header row.
@@ -259,7 +260,7 @@ namespace Private {
     const { table } = props;
 
     // Fetch the delete threads handler.
-    const { deleteThreads } = useHistory();
+    const { deleteThreads } = useHistoryConfig();
 
     // Fetch the needed info from the table.
     const rowCount = table.getRowModel().rows.length;

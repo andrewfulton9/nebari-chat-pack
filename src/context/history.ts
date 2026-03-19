@@ -9,10 +9,10 @@ import * as api from '@/api';
 
 
 /**
- * A type alias for the history context value.
+ * The configuration for the history page.
  */
 export
-type HistoryContextValue = {
+type HistoryConfig = {
   /**
    * The loaded history page from the api.
    */
@@ -26,20 +26,20 @@ type HistoryContextValue = {
 
 
 /**
- * The history context.
+ * The history config context.
  */
 export
-const HistoryContext = createContext<HistoryContextValue | undefined>(undefined);
+const HistoryConfigContext = createContext<HistoryConfig | undefined>(undefined);
 
 
 /**
- * A hook which returns the history context value.
+ * A hook which returns the history config.
  */
 export
-function useHistory(): HistoryContextValue {
-  const value = useContext(HistoryContext);
-  if (value === undefined) {
-    throw new Error('`useHistory` must be called within a `HistoryContext`');
+function useHistoryConfig(): HistoryConfig {
+  const config = useContext(HistoryConfigContext);
+  if (config === undefined) {
+    throw new Error('`useHistoryConfig` must be called within a `HistoryConfigContext`');
   }
-  return value;
+  return config;
 }

@@ -8,6 +8,10 @@ import {
 } from '@tanstack/react-query';
 
 import {
+  useNavigate
+} from '@tanstack/react-router';
+
+import {
   useCallback
 } from 'react';
 
@@ -48,7 +52,10 @@ type SubmitFunc = (prompt: string) => Promise<void>;
 export
 function useOnSubmit(): SubmitFunc {
   // Fetch the thread id from the chat config.
-  const { thread, agentId, setThreadId } = useChatConfig();
+  const { thread, agentId } = useChatConfig();
+
+  // Fetch the route navigator.
+  const navigate = useNavigate();
 
   // Fetch the create thread mutation.
   const { mutateAsync: createThread } = useMutation(createThreadMutation);
@@ -68,8 +75,8 @@ function useOnSubmit(): SubmitFunc {
         // Create a new thread with the user's selected agent.
         const thread = await createThread({ agentId, name });
 
-        // Switch the chat config (URL) to the new thread id.
-        setThreadId(thread.id);
+        // Navigate to the new thread id.
+        navigate({ to: '.', search: { threadId: thread.id } });
 
         // Return the new thread id.
         return thread.id;

@@ -9,37 +9,33 @@ import * as api from '@/api';
 
 
 /**
- * The configuration for a chat.
+ * The configuration for the chat page.
  */
 export
 type ChatConfig = {
   /**
-   * The thread object loaded for the URL `threadId` search param.
+   * The thread object loaded for the `/chat` `threadId` search param.
+   *
+   * This can be changed by navigating to the `/chat` route with the
+   * desired `threadId` search param.
+   *
+   * If the `threadId` search param is `undefined` this will be `null`.
    */
   readonly thread: api.Thread | null;
 
   /**
-   * A callback to set the thread id.
+   * The agent id for the `/chat` `agentId` search param.
    *
-   * This will cause the URL to update and a new `Thread` to be loaded.
-   */
-  readonly setThreadId: (threadId: string | undefined) => void;
-
-  /**
-   * The agent id for the chat.
+   * If the `thread` is not `null`, this search param is automatically
+   * synced with the agent id for the thread.
    *
-   * This is locked to the loaded thread object.
+   * If the `thread` is `null`, this is the agent that will be used
+   * when creating a new thread.
    *
-   * If the thread is null, the user's agent choice will prevail.
+   * This can be changed by navigating to the `/chat` route with the
+   * deesired `agentId` search param.
    */
   readonly agentId: string;
-
-  /**
-   * A callback to set the agent id for creating new threads.
-   *
-   * This will ignore an invalid agent id.
-   */
-  readonly setAgentId: (agentId: string) => void;
 };
 
 

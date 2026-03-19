@@ -2,7 +2,7 @@
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
 import {
-  Link
+  Link, useNavigate
 } from '@tanstack/react-router';
 
 import type {
@@ -51,15 +51,14 @@ namespace Private {
     const { agents } = useAppConfig();
 
     // Fetch the thread id setter from the chat config.
-    const { agentId, setAgentId, setThreadId } = useChatConfig();
+    const { agentId } = useChatConfig();
+
+    // Fetch the route navigator.
+    const navigate = useNavigate();
 
     // Create the callback for the value change.
     const handleValueChange = (value: string) => {
-      // Clear the current thread.
-      setThreadId(undefined);
-
-      // Set the new agent id.
-      setAgentId(value);
+      navigate({ to: '.', search: { agentId: value } });
     };
 
     // Create the items for the selector
@@ -124,13 +123,13 @@ namespace Private {
     // Return the rendered component.
     return (
       <Link
-        to='/chat'
+        to='.'
+        search={ prev => ({ ...prev, threadId: undefined }) }
         className={ cn(
           'h-7 w-24 flex justify-center items-center rounded-sm text-white',
           isDisabled ? 'bg-bd-brand-default/50' : 'bg-bd-brand-default'
         ) }
-        disabled={ isDisabled }
-        search={ { threadId: undefined } }>
+        disabled={ isDisabled }>
         New Chat
       </Link>
     );
