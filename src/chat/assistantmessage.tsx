@@ -15,6 +15,7 @@ import {
   ToolCallsRenderer
 } from './toolcallsrenderer';
 
+
 /**
  * A react component that renders an ag-ui assistant message.
  */
