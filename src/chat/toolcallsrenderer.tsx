@@ -1,9 +1,11 @@
 /*-----------------------------------------------------------------------------
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
-import type {
-  ToolCall
-} from '@ag-ui/core';
+import * as agui from '@ag-ui/core';
+
+import {
+  useQuery
+} from '@tanstack/react-query';
 
 import {
   JsonEditor
@@ -25,12 +27,20 @@ import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger
 } from '@/components/ui/accordion';
 
+import {
+  useChatConfig
+} from '@/context';
+
+import {
+  threadMessagesQuery
+} from '@/queries';
+
 
 /**
  * A react component that renders the tool executions for a run.
  */
 export
-function ToolCallsRenderer(props: ToolsRenderer.Props): ReactNode {
+function ToolCallsRenderer(props: ToolCallsRenderer.Props): ReactNode {
   // Extract the props.
   const { toolCalls } = props;
 
@@ -42,26 +52,26 @@ function ToolCallsRenderer(props: ToolsRenderer.Props): ReactNode {
   // Return the rendered component.
   return (
     <div className='flex flex-col gap-4'>
-      <Private.ToolAccordion toolCalls={ toolCalls } />
+      <Private.ToolCallsAccordion toolCalls={ toolCalls } />
     </div>
   );
 }
 
 
 /**
- * The namespace for the `ToolsRenderer` statics.
+ * The namespace for the `ToolCallsRenderer` statics.
  */
 export
-namespace ToolsRenderer {
+namespace ToolCallsRenderer {
   /**
-   * A type alias for the `ToolsRenderer` props.
+   * A type alias for the `ToolCallsRenderer` props.
    */
   export
   type Props = {
     /**
      * The api events for the run.
      */
-    readonly toolCalls: readonly ToolCall[];
+    readonly toolCalls: readonly agui.ToolCall[];
   };
 }
 
@@ -71,14 +81,14 @@ namespace ToolsRenderer {
  */
 namespace Private {
   /**
-   * A type alias for the `ToolAccordion` props.
+   * A type alias for the `ToolCallsAccordion` props.
    */
   export
-  type ToolAccordionProps = {
+  type ToolCallsAccordionProps = {
     /**
      * The tool calls for the message.
      */
-    readonly toolCalls: readonly ToolCall[];
+    readonly toolCalls: readonly agui.ToolCall[];
   };
 
   /**
@@ -87,41 +97,17 @@ namespace Private {
    * This component allows the user to inspect the raw JSON tool data.
    */
   export
-  function ToolAccordion(props: ToolAccordionProps): ReactNode {
+  function ToolCallsAccordion(props: ToolCallsAccordionProps): ReactNode {
     // Extract the props.
     const { toolCalls } = props;
 
-    // Get the number of tools called, which is known to be `> 0`.
+    // Get the number of tools called, which is gated `> 0` by the parent.
     const count = toolCalls.length;
 
-    // Create the JSON viewer content for the tool calls.
-    const content = toolCalls.map(tc => {
-      // Try to parse the arguments to JSON, falling back on the string.
-      const args = (() => {
-        try {
-          return JSON.parse(tc.function.arguments);
-        } catch {
-          return tc.function.arguments;
-        }
-      })();
-
-      // Return the rendered component.
-      return (
-        <div key={ tc.id } className='flex flex-col gap-4'>
-          <div className='font-semibold'>
-            { tc.function.name.toUpperCase() }
-          </div>
-          <JsonEditor
-            className='ot-ChatPlusPlus-jer'
-            data={ args }
-            maxWidth='100%'
-            rootName='arguments'
-            viewOnly={ true }
-            rootFontSize={ 12 }
-            collapse={ false } />
-        </div>
-      );
-    });
+    // Create the tool call items for the accordion.
+    const items = toolCalls.map(tc =>
+      <ToolCallItem key={ tc.id } toolCall={ tc } />
+    );
 
     // Return the rendered component.
     return (
@@ -137,10 +123,131 @@ namespace Private {
           </AccordionTrigger>
           <AccordionContent
             className='mt-4 p-4 flex flex-col gap-6 border rounded-md'>
-            { content }
+            { items }
           </AccordionContent>
         </AccordionItem>
       </Accordion>
     );
+  }
+
+  /**
+   * A react component that renders the item for a tool call.
+   */
+  function ToolCallItem(props: ToolCallItem.Props): ReactNode {
+    // Extract the props.
+    const { toolCall } = props;
+
+    // Return the rendered component.
+    return (
+      <div className='flex flex-col gap-4'>
+        <div className='font-semibold'>
+          { toolCall.function.name.toUpperCase() }
+        </div>
+        <ToolCallArgs toolCall={ toolCall } />
+        <ToolCallResult toolCall={ toolCall } />
+      </div>
+    );
+  }
+
+  /**
+   * The namespace for the `ToolCallItem` statics.
+   */
+  namespace ToolCallItem {
+    /**
+     * A type alias for the `ToolCallItem` props.
+     */
+    export
+    type Props = {
+      /**
+       * The tool call data to render.
+       */
+      readonly toolCall: agui.ToolCall;
+    };
+  }
+
+  /**
+   * A react component that renders the arguments for a tool call.
+   */
+  function ToolCallArgs(props: ToolCallItem.Props): ReactNode {
+    // Extract the props.
+    const { toolCall } = props;
+
+    // Try to parse the arguments to JSON, falling back on the string.
+    const args = (() => {
+      try {
+        return JSON.parse(toolCall.function.arguments);
+      } catch {
+        return toolCall.function.arguments;
+      }
+    })();
+
+    // Return the rendered component.
+    return (
+      <JsonEditor
+        className='ot-ChatPlusPlus-jer'
+        data={ args }
+        maxWidth='100%'
+        rootName='arguments'
+        viewOnly={ true }
+        rootFontSize={ 12 }
+        collapse={ false } />
+    );
+  }
+
+  /**
+   * A react component that renders the result for a tool call.
+   */
+  function ToolCallResult(props: ToolCallItem.Props): ReactNode {
+    // Extract the props.
+    const { toolCall } = props;
+
+    // Find the tool message that matches the tool call id.
+    const toolMessage = useToolMessage(toolCall.id);
+
+    // Try to parse the result to JSON.
+    const result = (() => {
+      try {
+        return JSON.parse(toolMessage?.content ?? '');
+      } catch {
+        return toolMessage?.content ?? '';
+      }
+    })();
+
+    // Return the rendered component.
+    return (
+      <JsonEditor
+        className='ot-ChatPlusPlus-jer'
+        data={ result }
+        maxWidth='100%'
+        rootName='result'
+        viewOnly={ true }
+        rootFontSize={ 12 }
+        collapse={ false } />
+    );
+  }
+
+  /**
+   * A hook which finds the tool message for a `toolCallId`.
+   */
+  function useToolMessage(toolCallId: string): agui.ToolMessage | null {
+    // Fetch the thread from the chat config.
+    const { thread } = useChatConfig();
+
+    // Create the query for the thread.
+    const query = threadMessagesQuery(thread?.id);
+
+    // Find the message that finishes the tool call, or `null`.
+    const { data: message } = useQuery({
+      ...query,
+      select: msgs => {
+        return (msgs ?? []).find(msg =>
+          msg.role === 'tool' &&
+          msg.toolCallId === toolCallId
+        ) ?? null;
+      }
+    });
+
+    // Return the found tool messages, or `null`.
+    return message as (agui.ToolMessage | null);
   }
 }
