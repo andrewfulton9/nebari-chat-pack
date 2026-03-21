@@ -136,6 +136,7 @@ namespace Private {
    */
   export
   function processEvent(evt: agui.AGUIEvent, draft: Draft): void {
+    console.log(evt);
     switch (evt.type) {
     case agui.EventType.TEXT_MESSAGE_START:
       evtTextMessageStart(evt, draft);
@@ -144,7 +145,7 @@ namespace Private {
       evtTextMessageContent(evt, draft);
       break;
     case agui.EventType.TEXT_MESSAGE_END:
-      // evtTextMessageEnd(evt, draft);
+      // Ignored until needed.
       break;
     case agui.EventType.TEXT_MESSAGE_CHUNK:
       // Chunk events are just a more complicated way of expressing
@@ -152,10 +153,10 @@ namespace Private {
       console.log('`TextMessageChunk` events are not supported');
       break;
     case agui.EventType.TOOL_CALL_START:
-      // evtToolCallStart(evt, draft);
+      evtToolCallStart(evt, draft);
       break;
     case agui.EventType.TOOL_CALL_ARGS:
-      // evtToolCallArgs(evt, draft);
+      evtToolCallArgs(evt, draft);
       break;
     case agui.EventType.TOOL_CALL_END:
       // Ignored until needed
@@ -166,7 +167,7 @@ namespace Private {
       console.log('`ToolCallChunk` events are not supported');
       break;
     case agui.EventType.TOOL_CALL_RESULT:
-      // evtToolCallResult(evt, draft);
+      evtToolCallResult(evt, draft);
       break;
     case agui.EventType.STATE_SNAPSHOT:
       // State events have no real meaning or use to the UI.
@@ -268,69 +269,69 @@ namespace Private {
     msg.content = (msg.content ?? '') + evt.delta;
   }
 
-  // /**
-  //  * Handle the ag-ui `ToolCallStart` event.
-  //  */
-  // function evtToolCallStart(evt: agui.ToolCallStartEvent, draft: Draft): void {
-  //   // Find the best message to associate with the tool call.
-  //   const msg = (
-  //     evt.parentMessageId !== undefined ?
-  //     draft.messages.findLast(m => m.id === evt.parentMessageId) :
-  //     draft.messages.findLast(m => m.role === 'assistant')
-  //   );
+  /**
+   * Handle the ag-ui `ToolCallStart` event.
+   */
+  function evtToolCallStart(evt: agui.ToolCallStartEvent, draft: Draft): void {
+    // Find the best message to associate with the tool call.
+    const msg = (
+      evt.parentMessageId !== undefined ?
+      draft.findLast(m => m.id === evt.parentMessageId) :
+      draft.findLast(m => m.role === 'assistant')
+    );
 
-  //   // Log an error if a suitable message is not found.
-  //   if (!msg) {
-  //     console.error('Could not find parent message for tool call');
-  //     return;
-  //   }
+    // Log an error if a suitable message is not found.
+    if (!msg) {
+      console.error('Could not find parent message for tool call');
+      return;
+    }
 
-  //   // Log an error if the message has the wrong role.
-  //   if (msg.role !== 'assistant') {
-  //     console.error(`Tool call parent message has invalid role: ${msg.role}`);
-  //     return;
-  //   }
+    // Log an error if the message has the wrong role.
+    if (msg.role !== 'assistant') {
+      console.error(`Tool call parent message has invalid role: ${msg.role}`);
+      return;
+    }
 
-  //   // Create the new tool call.
-  //   const toolCall = {
-  //     type: 'function',
-  //     id: evt.toolCallId,
-  //     function: { name: evt.toolCallName, arguments: '' }
-  //   } as const;
+    // Create the new tool call.
+    const toolCall = {
+      type: 'function',
+      id: evt.toolCallId,
+      function: { name: evt.toolCallName, arguments: '' }
+    } as const;
 
-  //   // Add the new tool call to the parent message.
-  //   msg.toolCalls = [...(msg.toolCalls ?? []), toolCall];
-  // }
+    // Add the new tool call to the parent message.
+    msg.toolCalls = [...(msg.toolCalls ?? []), toolCall];
+  }
 
-  // /**
-  //  * Handle the ag-ui `ToolCallArgs` event.
-  //  */
-  // function evtToolCallArgs(evt: agui.ToolCallArgsEvent, draft: Draft): void {
-  //   // Find the tool call with the matching id.
-  //   const toolCall = findToolCall(evt.toolCallId, draft);
+  /**
+   * Handle the ag-ui `ToolCallArgs` event.
+   */
+  function evtToolCallArgs(evt: agui.ToolCallArgsEvent, draft: Draft): void {
+    // Find the tool call with the matching id.
+    const toolCall = findToolCall(evt.toolCallId, draft);
 
-  //   // Log an error if the tool call was not found.
-  //   if (!toolCall) {
-  //     console.error(`Tool call with id ${evt.toolCallId} not found.`);
-  //     return;
-  //   }
+    // Log an error if the tool call was not found.
+    if (!toolCall) {
+      console.error(`Tool call with id ${evt.toolCallId} not found.`);
+      return;
+    }
 
-  //   // Update the tool call args with the delta.
-  //   toolCall.function.arguments += evt.delta;
-  // }
+    // Update the tool call args with the delta.
+    toolCall.function.arguments += evt.delta;
+  }
 
-  // /**
-  //  * Handle the ag-ui `ToolCallResult` event.
-  //  */
-  // function evtToolCallResult(evt: agui.ToolCallResultEvent, draft: Draft): void {
-  //   // Add the tool result to the messages.
-  //   draft.messages.push({
-  //     role: 'tool',
-  //     id: evt.messageId,
-  //     toolCallId: evt.toolCallId,
-  //     content: evt.content
-  //   });
-  // }
+  /**
+   * Handle the ag-ui `ToolCallResult` event.
+   */
+  function evtToolCallResult(evt: agui.ToolCallResultEvent, draft: Draft): void {
+    // Add the tool result to the messages.
+    draft.push({
+      role: 'tool',
+      id: evt.messageId,
+      toolCallId: evt.toolCallId,
+      content: evt.content
+    });
+  }
 
   /**
    * Handle the ag-ui `MessagesSnapshot` event.
@@ -433,21 +434,29 @@ namespace Private {
 
   // }
 
-  // /**
-  //  *
-  //  */
-  // function findToolCall(toolCallId: string, draft: Draft) {
-  //   for (let i = draft.messages.length - 1; i >= 0; i--) {
-  //     const msg = draft.messages[i];
-  //     if (msg.role === 'assistant' && msg.toolCalls) {
-  //       for (let j = msg.toolCalls.length - 1; j >= 0; j--) {
-  //         const tc = msg.toolCalls[j];
-  //         if (tc.id === toolCallId) {
-  //           return tc;
-  //         }
-  //       }
-  //     }
-  //   }
-  //   return null;
-  // }
+  /**
+   * Find the tool call with the given id.
+   *
+   * This searches from the end of the messages looking for the most recent
+   * matching tool call.
+   *
+   * Note: This would be more efficient if the tool call args event
+   *       included a parent message id.
+   *
+   *       See: https://github.com/ag-ui-protocol/ag-ui/issues/1136
+   */
+  function findToolCall(toolCallId: string, draft: Draft) {
+    for (let i = draft.length - 1; i >= 0; i--) {
+      const msg = draft[i];
+      if (msg.role === 'assistant' && msg.toolCalls) {
+        for (let j = msg.toolCalls.length - 1; j >= 0; j--) {
+          const tc = msg.toolCalls[j];
+          if (tc.id === toolCallId) {
+            return tc;
+          }
+        }
+      }
+    }
+    return null;
+  }
 }
