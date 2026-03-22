@@ -261,7 +261,7 @@ namespace Private {
 
     // Log an error the message is not found.
     if (!msg) {
-      console.error(`Message with id ${evt.messageId} not found.`);
+      console.error(`Message with id ${evt.messageId} not found`);
       return;
     }
 
@@ -273,22 +273,25 @@ namespace Private {
    * Handle the ag-ui `ToolCallStart` event.
    */
   function evtToolCallStart(evt: agui.ToolCallStartEvent, draft: Draft): void {
+    // Fetch the parent message id from the event.
+    const pid = evt.parentMessageId;
+
     // Find the best message to associate with the tool call.
     const msg = (
-      evt.parentMessageId !== undefined ?
-      draft.findLast(m => m.id === evt.parentMessageId) :
+      evt.pid ?
+      draft.findLast(m => m.id === pid) :
       draft.findLast(m => m.role === 'assistant')
     );
 
-    // Log an error if a suitable message is not found.
-    if (!msg) {
-      console.error('Could not find parent message for tool call');
+    // If a message is found, validate its role.
+    if (msg && msg.role !== 'assistant') {
+      console.error(`Tool call parent message ${msg.id} has invalid role: ${msg.role}`);
       return;
     }
 
-    // Log an error if the message has the wrong role.
-    if (msg.role !== 'assistant') {
-      console.error(`Tool call parent message has invalid role: ${msg.role}`);
+    // It's an error if a parent id was specified but not found.
+    if (pid && !msg) {
+      console.error(`Tool call parent message ${pid} not found`);
       return;
     }
 
@@ -299,8 +302,19 @@ namespace Private {
       function: { name: evt.toolCallName, arguments: '' }
     } as const;
 
-    // Add the new tool call to the parent message.
-    msg.toolCalls = [...(msg.toolCalls ?? []), toolCall];
+    // If a parent message was found, add the tool call.
+    if (msg) {
+      msg.toolCalls = [...(msg.toolCalls ?? []), toolCall];
+      return;
+    }
+
+    // As a last resort, create a new message to hold the tool call.
+    draft.push({
+      id: crypto.randomUUID(),
+      role: 'assistant',
+      content: '',
+      toolCalls: [toolCall]
+    });
   }
 
   /**
@@ -308,11 +322,14 @@ namespace Private {
    */
   function evtToolCallArgs(evt: agui.ToolCallArgsEvent, draft: Draft): void {
     // Find the tool call with the matching id.
+    //
+    // TODO - this has to exhaustively search every assistant message and
+    // every tool call since the event does not have a `parentMessageId`.
     const toolCall = findToolCall(evt.toolCallId, draft);
 
     // Log an error if the tool call was not found.
     if (!toolCall) {
-      console.error(`Tool call with id ${evt.toolCallId} not found.`);
+      console.error(`Tool call ${evt.toolCallId} not found`);
       return;
     }
 
