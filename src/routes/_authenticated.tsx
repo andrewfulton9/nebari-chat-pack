@@ -2,7 +2,7 @@
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
 import {
-  Outlet, createFileRoute, redirect
+  Outlet, createFileRoute
 } from '@tanstack/react-router'
 
 import type {
@@ -24,22 +24,13 @@ import {
 } from '@/sidebar';
 
 
-// A flag controlling whether authentication is enabled.
-const AUTH_ENABLED = (
-  import.meta.env.VITE_MODE === 'prod' ||
-  import.meta.env.VITE_DEV_AUTH_ENABLED === 'true'
-);
-
-
 /**
  * The base route that enforces authentication.
  */
 export
 const Route = createFileRoute('/_authenticated')({
-  beforeLoad: ({ location }) => {
-    if (AUTH_ENABLED && auth.getUser() === null) {
-      throw redirect({ to: '/login', search: { redirect: location.href } });
-    }
+  beforeLoad: async ({ location }) => {
+    await auth.login(location.href);
   },
   loader: ({ context }) => {
     return context.client.fetchQuery(appConfigQuery);

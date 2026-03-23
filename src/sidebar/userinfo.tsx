@@ -41,73 +41,74 @@ function UserInfo(props: UserInfo.Props): ReactNode {
   // Extract the props.
   const { isSidebarOpen } = props;
 
-  // Create the state to track the user record.
-  const [user, setUser] = useState<auth.AuthRecord>(null);
+  return null;
+  // // Create the state to track the user record.
+  // const [user, setUser] = useState<auth.AuthRecord>(null);
 
-  // Sync the user record with the config state.
-  useEffect(() => {
-    // Sync the auth state on mount.
-    setUser(auth.getUser());
+  // // Sync the user record with the config state.
+  // useEffect(() => {
+  //   // Sync the auth state on mount.
+  //   setUser(auth.getUser());
 
-    // Subscribe to auth changes.
-    return auth.onUserChange((_token, record) => { setUser(record); });
-  }, []);
+  //   // Subscribe to auth changes.
+  //   return auth.onUserChange((_token, record) => { setUser(record); });
+  // }, []);
 
-  // Bail early if no user is logged in.
-  if (!user) {
-    return null;
-  }
+  // // Bail early if no user is logged in.
+  // if (!user) {
+  //   return null;
+  // }
 
-  // Get the user name to display, falling back on the email.
-  const userName = (user.name || user.email) as string;
+  // // Get the user name to display, falling back on the email.
+  // const userName = (user.name || user.email) as string;
 
-  // Create the extra user content when the sidebar is open.
-  const userContent = (
-    isSidebarOpen ?
-      <>
-        <span className='truncate'>
-          { userName }
-        </span>
-        <span className='grow' />
-        <ChevronsUpDown />
-      </>
-    : null
-  );
+  // // Create the extra user content when the sidebar is open.
+  // const userContent = (
+  //   isSidebarOpen ?
+  //     <>
+  //       <span className='truncate'>
+  //         { userName }
+  //       </span>
+  //       <span className='grow' />
+  //       <ChevronsUpDown />
+  //     </>
+  //   : null
+  // );
 
-  // Return the rendered component.
-  return (
-    <div className='border-t'>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant='ghost'
-            className='h-12 cursor-pointer w-full rounded-none'>
-            <Avatar>
-              <AvatarImage src={ user.avatar } />
-              <AvatarFallback className='bg-black text-muted'>
-                { userName.charAt(0).toUpperCase() }
-              </AvatarFallback>
-            </Avatar>
-            { userContent }
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align='start'
-          alignOffset={ 12 }
-          className='min-w-60 rounded-sm'>
-          <DropdownMenuLabel>
-            { user.email }
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant='destructive'>
-            <Link to='/logout' preload={ false } className='w-full'>
-              Logout
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
+  // // Return the rendered component.
+  // return (
+  //   <div className='border-t'>
+  //     <DropdownMenu>
+  //       <DropdownMenuTrigger asChild>
+  //         <Button
+  //           variant='ghost'
+  //           className='h-12 cursor-pointer w-full rounded-none'>
+  //           <Avatar>
+  //             <AvatarImage src={ user.avatar } />
+  //             <AvatarFallback className='bg-black text-muted'>
+  //               { userName.charAt(0).toUpperCase() }
+  //             </AvatarFallback>
+  //           </Avatar>
+  //           { userContent }
+  //         </Button>
+  //       </DropdownMenuTrigger>
+  //       <DropdownMenuContent
+  //         align='start'
+  //         alignOffset={ 12 }
+  //         className='min-w-60 rounded-sm'>
+  //         <DropdownMenuLabel>
+  //           { user.email }
+  //         </DropdownMenuLabel>
+  //         <DropdownMenuSeparator />
+  //         <DropdownMenuItem variant='destructive'>
+  //           <Link to='/logout' preload={ false } className='w-full'>
+  //             Logout
+  //           </Link>
+  //         </DropdownMenuItem>
+  //       </DropdownMenuContent>
+  //     </DropdownMenu>
+  //   </div>
+  // );
 }
 
 

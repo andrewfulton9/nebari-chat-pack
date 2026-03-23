@@ -13,8 +13,8 @@ import * as auth from '@/auth';
  */
 export
 const Route = createFileRoute('/logout')({
-  beforeLoad: () => {
-    auth.logout();
-    throw redirect({ to: '/' });
+  beforeLoad: async () => {
+    await auth.logout('/');  // this might be a no-op
+    throw redirect({ to: '/' });  // ensure the redirect happens
   }
 });
