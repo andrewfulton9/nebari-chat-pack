@@ -83,7 +83,7 @@ async function login(): Promise<void> {
 /**
  * A function which handles user logout via Keycloack.
  *
- * If the user is already logged-out this just a redirect to origin.
+ * If the user is already logged-out this is just a redirect to origin.
  */
 export
 async function logout(): Promise<void> {
