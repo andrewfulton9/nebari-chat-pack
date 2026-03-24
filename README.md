@@ -34,12 +34,19 @@ Chat++ uses [KeyCloak](https://www.keycloak.org/) for authentication. To bypass 
 for local development, set `VITE_AUTH_ENABLED=false`, otherwise set it to `true` and set the 
 rest of the variables to match your Keycloak deployment.
 
+
+# Run the Development Server
+
 Once your `env` file is configured and your Hrafnar server is running, start the Chat++
-dev server with the following command and point your browser at the URL displayed in the terminal.
+development server with the following command and point your browser at the URL displayed in 
+the terminal.
 
 ```
 npm run dev
 ```
+
+
+# Run a Production Build
 
 To build a production bundle for deployment, first make sure your `env` file is configured properly
 as these variables will be built into the bundle, then execute the following command:
