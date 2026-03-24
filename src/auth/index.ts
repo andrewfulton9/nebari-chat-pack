@@ -1,6 +1,10 @@
 /*-----------------------------------------------------------------------------
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
+import type {
+  KeycloakProfile
+} from 'keycloak-js';
+
 import Keycloak from 'keycloak-js';
 
 
@@ -14,6 +18,15 @@ const keycloak = new Keycloak({
   realm: import.meta.env.VITE_KEYCLOAK_REALM,
   clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID
 });
+
+
+// If auth is enabled, init keycloak before anything else is loaded.
+//
+// This allows redirects to happen cleanly after a login and prevents
+// redirect loops if it were to be performed lazily in `login()`.
+if (AUTH_ENABLED) {
+  await keycloak.init({});
+}
 
 
 // Save a reference to the native fetch before it can be overridden.
@@ -57,62 +70,72 @@ async function fetch(url: string, init: RequestInit = {}): Promise<Response> {
 /**
  * A function which handles the user login via Keycloak.
  *
- * If authentication is not enabled, or if the user is already logged-in,
- * this function is a no-op.
- *
- * @param redirectUri - The redirect target if login is required.
+ * If the user is already logged-in this is a no-op.
  */
 export
-async function login(redirectUri: string): Promise<void> {
-  // Bail early if authentication is not enabled.
-  if (!AUTH_ENABLED) {
+async function login(): Promise<void> {
+  // Bail early if login is not needed.
+  if (!AUTH_ENABLED || keycloak.authenticated) {
     return;
   }
 
-  // Bail early if the user is already logged in.
-  if (keycloak.authenticated) {
-    return;
-  }
-
-  // Initialize the keycloak instance if needed.
-  if (!keycloak.didInitialize) {
-    await keycloak.init();
-  }
-
-  // Log in the user.
-  await keycloak.login({ redirectUri });
+  // Authenticate the user.
+  await keycloak.login({ redirectUri: window.location.origin });
 }
 
 
 /**
  * A function which handles user logout via Keycloack.
  *
- * If authentication is not enabled, or if the user is already logged-out,
- * this function is a no-op.
- *
- * @param redirectUri - The redirect target if logout is required.
+ * If the user is already logged-in this just a simple redirect.
  */
 export
-async function logout(redirectUri: string): Promise<void> {
-  // Bail early if authentication is not enabled.
+async function logout(): Promise<void> {
+  // Redirect if auth is not enabled.
+  //
+  // On execution, `keycloak.authenticated` might be `false` if the user
+  // is authed but the `keycloak.init()` promise has not yet resolved,
+  // which would yield a false negative, so don't check for it.
   if (!AUTH_ENABLED) {
-    return;
-  }
-
-  // Bail early if the user is not logged-in.
-  if (!keycloak.authenticated) {
+    window.location.replace(window.location.origin);
     return;
   }
 
   // Log out the user.
-  await keycloak.logout({ redirectUri });
+  await keycloak.logout({ redirectUri: window.location.origin });
 }
 
 
 /**
- * Get the auth record for the logged in user, or `null`.
+ * A type alias for a user profile.
  */
 export
-function getUser(): null {
-  return null;
+type UserProfile = {
+  /**
+   * The user name.
+   */
+  name: string;
+
+  /**
+   * The user email.
+   */
+  email: string;
 };
+
+
+/**
+ * Get the profile for the logged in user, or `null`.
+ */
+export
+function getUserProfile(): UserProfile | null {
+  // Bail early if auth is not enabled.
+  if (!AUTH_ENABLED || !keycloak.authenticated) {
+    return null;
+  }
+
+  // Return the user profile from the parsed token data.
+  return {
+    name: keycloak.tokenParsed?.name ?? '',
+    email: keycloak.tokenParsed?.email ?? ''
+  };
+}

@@ -29,9 +29,7 @@ import {
  */
 export
 const Route = createFileRoute('/_authenticated')({
-  beforeLoad: async ({ location }) => {
-    await auth.login(location.href);
-  },
+  beforeLoad: auth.login,
   loader: ({ context }) => {
     return context.client.fetchQuery(appConfigQuery);
   },
