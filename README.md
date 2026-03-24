@@ -40,3 +40,23 @@ dev server with the following command and point your browser at the URL displaye
 ```
 npm run dev
 ```
+
+To build a production bundle for deployment, first make sure your `env` file is configured properly
+as these variables will be built into the bundle, then execute the following command:
+
+```
+npm run build
+```
+
+If the build succeeds, the results will be in the `./dist` directory ready to be used by a 
+server of your choice.
+
+You can preview the build locally by running the following command and pointing your browser to 
+the URL shown in the terminal. This will be a different port than `npm run dev`.
+
+Note that if you change `env` variables, you will need to rebuild the project before the preview
+command will pick up the changes.
+
+```
+npm run preview
+```
