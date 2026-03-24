@@ -11,8 +11,7 @@ RUN npm ci
 COPY ./ ./
 
 # Declare build-time variables so Vite can embed them into the JS bundle.
-# Pass each one with: docker build --build-arg VITE_API_URL=http://backend:8000 ...
-ARG VITE_API_URL
+# Pass each one with: docker build --build-arg VITE_AUTH_ENABLED=true ...
 ARG VITE_AUTH_ENABLED=true
 ARG VITE_KEYCLOAK_URL
 ARG VITE_KEYCLOAK_REALM

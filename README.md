@@ -10,7 +10,7 @@ Before you can run Chat++ you need a [Hrafnar](https://github.com/openteams-ai/h
 compatible server running somewhere. Follow the Hrafnar instructions for creating your
 agents and deploying the server.
 
-To get started with a local dev version of Chat++, first checkout the repo:
+To get started with a local version of Chat++, first checkout the repo:
 
 ```
 git clone https://github.com/openteams-ai/chat-plus-plus.git
@@ -29,24 +29,27 @@ Then copy the example `env` file and edit the `VITE_API_URL` to match your Hrafn
 cp .env.example .env
 ```
 
-Chat++ uses KeyCloak for authentication. To bypass authentication for local development, set 
-`VITE_AUTH_ENABLED=false`, otherwise set it to `true` and set the rest of the variables to 
-match your Keycloak deployment.
+Chat++ uses [KeyCloak](https://www.keycloak.org/) for authentication. To bypass authentication 
+for local development, set `VITE_AUTH_ENABLED=false`, otherwise set it to `true` and set the 
+rest of the variables to match your Keycloak deployment.
+
+
+# Run the Development Server
 
 Once your `env` file is configured and your Hrafnar server is running, start the Chat++
-dev server with the following command and point your browser at the URL displayed in the terminal.
+development server with the following command and point your browser at the URL displayed in 
+the terminal.
 
 ```
 npm run dev
 ```
 
-## Running with Docker
+# Running with Docker
 
 Build the image, passing your environment values as build arguments:
 
 ```
 docker build \
-  --build-arg VITE_API_URL=http:localhost:8000 \
   --build-arg VITE_KEYCLOAK_URL=https://keycloak.hrafnar-nebari-dev.openteams.app \
   --build-arg VITE_KEYCLOAK_REALM=nebari \
   --build-arg VITE_KEYCLOAK_CLIENT_ID=chat-plus-plus-nebariapp \
@@ -56,7 +59,29 @@ docker build \
 Then run the container, supplying the backend URL at runtime:
 
 ```
-docker run -p 8080:8080 -e API_URL=http://your-hrafnar-server:8000 chat-plus-plus
+docker run -p 8080:8080 -e API_URL=http://host.docker.internal:8000 chat-plus-plus
 ```
 
 Open your browser at `http://localhost:8080`.
+
+# Run a Production Build
+
+To build a production bundle for deployment, first make sure your `env` file is configured properly
+as these variables will be built into the bundle, then execute the following command:
+
+```
+npm run build
+```
+
+If the build succeeds, the results will be in the `./dist` directory ready to be hosted by a 
+server of your choice.
+
+You can preview the build locally by running the following command and pointing your browser to 
+the URL shown in the terminal. This will be a different port than `npm run dev`.
+
+Note that if you change `env` variables, you will need to rebuild the project before the preview
+command will pick up the changes.
+
+```
+npm run preview
+```

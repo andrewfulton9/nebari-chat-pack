@@ -7,8 +7,6 @@ import * as z from 'zod';
 
 import * as auth from '@/auth';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? '';
-
 import type {
   PaginationOptions
 } from '@/lib/pagination';
@@ -99,7 +97,7 @@ type ThreadMessages = z.infer<typeof ThreadMessagesSchema>;
 export
 async function getThread(threadId: string): Promise<Thread> {
   // Fetch the resource.
-  const resp = await auth.fetch(`${API_BASE}/api/threads/${threadId}`);
+  const resp = await auth.fetch(`/api/threads/${threadId}`);
 
   // Return the parsed result.
   return ThreadSchema.parse(await resp.json());
@@ -116,7 +114,7 @@ async function getThread(threadId: string): Promise<Thread> {
 export
 async function getThreadMessages(threadId: string): Promise<ThreadMessages> {
   // Fetch the resource.
-  const resp = await auth.fetch(`${API_BASE}/api/threads/${threadId}/messages`);
+  const resp = await auth.fetch(`/api/threads/${threadId}/messages`);
 
   // Return the parsed result.
   return ThreadMessagesSchema.parse(await resp.json());
@@ -150,7 +148,7 @@ async function getThreadPage(options: getThreadPage.Options): Promise<ThreadPage
   }
 
   // Fetch the resource.
-  const resp = await auth.fetch(`${API_BASE}/api/threads?${params}`);
+  const resp = await auth.fetch(`/api/threads?${params}`);
 
   // Return the parsed result.
   return ThreadPageSchema.parse(await resp.json());
@@ -180,7 +178,7 @@ namespace getThreadPage {
 export
 async function createThread(options: createThread.Options): Promise<Thread> {
   // Fetch the resource.
-  const resp = await auth.fetch(`${API_BASE}/api/threads`, {
+  const resp = await auth.fetch('/api/threads', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(options)
@@ -221,7 +219,7 @@ namespace createThread {
  */
 export
 async function deleteThreads(threadIds: readonly string[]): Promise<void> {
-  await auth.fetch(`${API_BASE}/api/threads`, {
+  await auth.fetch('/api/threads', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ids: threadIds })
@@ -242,7 +240,7 @@ async function *createRun(options: createRun.Options): AsyncGenerator<agui.AGUIE
   const { threadId, ...rest } = options;
 
   // Fetch the resource.
-  const resp = await fetch(`${API_BASE}/api/threads/${threadId}/run`, {
+  const resp = await fetch(`/api/threads/${threadId}/run`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(rest)
