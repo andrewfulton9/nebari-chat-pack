@@ -21,7 +21,7 @@ const keycloak = new Keycloak({
 // This allows redirects to happen cleanly after a login and prevents
 // redirect loops if it were to be performed lazily in `login()`.
 if (AUTH_ENABLED) {
-  await keycloak.init({});
+  await keycloak.init({ checkLoginIframe: false });
 }
 
 
@@ -37,11 +37,18 @@ const nativeFetch = window.fetch;
 /**
  * A fetch wrapper that adds the bearer token to the request headers.
  *
- * This function prevents the exposure of the auth token. It also handles
- * the `!response.ok` condition in a single location.
+ * This function provides several benefits:
+ *   1) It prevents the exposure of any tokens
+ *   2) It automatically handles refreshing the bearer token
+ *   3) It handles the `!response.okay` condition
  */
 export
 async function fetch(url: string, init: RequestInit = {}): Promise<Response> {
+  // Ensure we have an unexpired token.
+  if (AUTH_ENABLED) {
+    await keycloak.updateToken();
+  }
+
   // Create the extra headers if needed.
   const headers = (
     AUTH_ENABLED ? { 'Authorization': `Bearer ${keycloak.token ?? ''}` } : { }
