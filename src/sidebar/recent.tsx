@@ -83,7 +83,7 @@ namespace Recent {
   export
   type Props = {
     /**
-     * Whether the sidebar is open
+     * Whether the sidebar is open.
      */
     readonly isSidebarOpen: boolean;
   };
