@@ -8,11 +8,17 @@ import Keycloak from 'keycloak-js';
 const AUTH_ENABLED = import.meta.env.VITE_AUTH_ENABLED === 'true';
 
 
+// Fetch runtime config from /config.json (served as a static asset).
+// This allows Keycloak settings to be injected at container start time
+// without requiring a rebuild.
+const runtimeConfig = await window.fetch('/config.json').then(r => r.json());
+
+
 // The singleton `Keycloak` instance for handling authentication.
 const keycloak = new Keycloak({
-  url: import.meta.env.VITE_KEYCLOAK_URL,
-  realm: import.meta.env.VITE_KEYCLOAK_REALM,
-  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID
+  url: runtimeConfig.keycloak.url,
+  realm: runtimeConfig.keycloak.realm,
+  clientId: runtimeConfig.keycloak.clientId
 });
 
 

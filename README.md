@@ -46,20 +46,16 @@ npm run dev
 
 # Running with Docker
 
-Build the image, passing your environment values as build arguments:
+Build the image:
 
 ```
-docker build \
-  --build-arg VITE_KEYCLOAK_URL=https://keycloak.hrafnar-nebari-dev.openteams.app \
-  --build-arg VITE_KEYCLOAK_REALM=nebari \
-  --build-arg VITE_KEYCLOAK_CLIENT_ID=chat-plus-plus-nebariapp \
-  -t chat-plus-plus .
+docker build -t chat-plus-plus .
 ```
 
-Then run the container, supplying the backend URL at runtime:
+Then run the container, passing environment values as needed:
 
 ```
-docker run -p 8080:8080 -e API_URL=http://host.docker.internal:8000 chat-plus-plus
+docker run -p 8080:8080 -e API_URL=http://localhost:8000 chat-plus-plus
 ```
 
 Open your browser at `http://localhost:8080`.

@@ -13,15 +13,15 @@ COPY ./ ./
 # Declare build-time variables so Vite can embed them into the JS bundle.
 # Pass each one with: docker build --build-arg VITE_AUTH_ENABLED=true ...
 ARG VITE_AUTH_ENABLED=true
-ARG VITE_KEYCLOAK_URL
-ARG VITE_KEYCLOAK_REALM
-ARG VITE_KEYCLOAK_CLIENT_ID
 
 RUN npm run build
 # Vite outputs to /app/dist by default.
 
 # ─── Stage 2: serve ──────────────────────────────────────────────────────────
-FROM nginx:alpine AS final
+FROM nginx:1.27-alpine AS final
+
+# envsubst is part of gettext — needed to render ${API_URL} in the template.
+RUN apk add --no-cache gettext
 
 # Remove the default nginx welcome page.
 RUN rm -rf /usr/share/nginx/html/*
@@ -29,11 +29,19 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy built assets.
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# nginx template: envsubst replaces ${API_URL} at container start.
-# The official nginx image processes /etc/nginx/templates/*.template
-# automatically before nginx launches.
-COPY nginx.conf /etc/nginx/templates/default.conf.template
+# Copy the nginx config as a template — ${API_URL} will be substituted at
+# container startup by envsubst, so the backend address can be set via env var
+# without rebuilding the image.
+COPY nginx.conf /etc/nginx/nginx.conf.template
+
+# Set a default value for API_URL, which will be substituted into the nginx.conf at runtime.
+ENV API_URL=http://host.docker.internal:8000
 
 EXPOSE 8080
 
-CMD ["nginx", "-g", "daemon off;"]
+# 1. Substitute ${API_URL} in the template and write the final nginx.conf.
+#    Only ${API_URL} is substituted — all other nginx $variable references
+#    (e.g. $host, $remote_addr) are left untouched.
+# 2. Start nginx in the foreground.
+CMD ["/bin/sh", "-c", \
+  "envsubst '${API_URL}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
