@@ -4,7 +4,6 @@ other agentic server that implments the Hrafnar API, which is essentially just t
 [AG-UI](https://docs.ag-ui.com/introduction) protocol with some additional endpoints for
 managing thread history.
 
-
 # Instructions
 
 Before you can run Chat++ you need a [Hrafnar](https://github.com/openteams-ai/hrafnar)
@@ -24,15 +23,24 @@ cd chat-plus-plus
 npm install
 ```
 
-Then copy the example `env` file and edit the `VITE_API_URL` to match your Hrafnar deployment.
+Then copy the example `env` file and set `VITE_API_URL` to match your Hrafnar deployment.
 
 ```
 cp .env.example .env
 ```
 
-Chat++ uses [KeyCloak](https://www.keycloak.org/) for authentication. To bypass authentication 
-for local development, set `VITE_AUTH_ENABLED=false`, otherwise set it to `true` and set the 
-rest of the variables to match your Keycloak deployment.
+Chat++ uses [KeyCloak](https://www.keycloak.org/) for authentication. Keycloak is configured
+via `public/keycloak-config.json`. Edit this file to match your Keycloak deployment before running:
+
+```json
+{
+  "auth-server-url": "https://keycloak.example.com",
+  "realm": "myrealm",
+  "resource": "chat-plus-plus"
+}
+```
+
+To bypass authentication for local development, set `VITE_AUTH_ENABLED=false` in your `.env`.
 
 
 # Run the Development Server
@@ -45,6 +53,25 @@ the terminal.
 npm run dev
 ```
 
+# Running with Docker
+
+Build the image:
+
+```
+docker build -t chat-plus-plus .
+```
+
+Then run the container, passing environment values as needed:
+
+```
+docker run -p 8080:8080 -e API_URL=http://host.docker.internal:8000 chat-plus-plus
+```
+
+> **Note:** Keycloak settings are read from `public/keycloak-config.json` at runtime. In a Kubernetes
+> deployment, mount a ConfigMap over `/usr/share/nginx/html/keycloak-config.json` to inject the correct
+> values without rebuilding the image.
+
+Open your browser at `http://localhost:8080`.
 
 # Run a Production Build
 

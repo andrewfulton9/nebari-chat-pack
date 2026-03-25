@@ -1,14 +1,47 @@
-FROM node:22-alpine
+# ─── Stage 1: build ──────────────────────────────────────────────────────────
+FROM node:22-alpine AS builder
 
 WORKDIR /app
-RUN chown node:node /app
-USER node
 
-COPY --chown=node:node package.json package-lock.json ./
-
+# Install dependencies first to leverage layer caching.
+COPY package*.json ./
 RUN npm ci
 
-COPY --chown=node:node . .
+# Copy the rest of the frontend source and build.
+COPY ./ ./
 
-EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Declare build-time variables so Vite can embed them into the JS bundle.
+# Pass each one with: docker build --build-arg VITE_AUTH_ENABLED=true ...
+ARG VITE_AUTH_ENABLED=true
+
+RUN npm run build
+# Vite outputs to /app/dist by default.
+
+# ─── Stage 2: serve ──────────────────────────────────────────────────────────
+FROM nginx:1.27-alpine AS final
+
+# envsubst is part of gettext — needed to render ${API_URL} in the template.
+RUN apk add --no-cache gettext
+
+# Remove the default nginx welcome page.
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built assets.
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy the nginx config as a template — ${API_URL} will be substituted at
+# container startup by envsubst, so the backend address can be set via env var
+# without rebuilding the image.
+COPY nginx.conf /etc/nginx/nginx.conf.template
+
+# Set a default value for API_URL, which will be substituted into the nginx.conf at runtime.
+ENV API_URL=http://host.docker.internal:8000
+
+EXPOSE 8080
+
+# 1. Substitute ${API_URL} in the template and write the final nginx.conf.
+#    Only ${API_URL} is substituted — all other nginx $variable references
+#    (e.g. $host, $remote_addr) are left untouched.
+# 2. Start nginx in the foreground.
+CMD ["/bin/sh", "-c", \
+  "envsubst '${API_URL}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]

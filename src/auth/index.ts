@@ -7,13 +7,8 @@ import Keycloak from 'keycloak-js';
 // Whether auth is enabled for the application.
 const AUTH_ENABLED = import.meta.env.VITE_AUTH_ENABLED === 'true';
 
-
 // The singleton `Keycloak` instance for handling authentication.
-const keycloak = new Keycloak({
-  url: import.meta.env.VITE_KEYCLOAK_URL,
-  realm: import.meta.env.VITE_KEYCLOAK_REALM,
-  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID
-});
+const keycloak = new Keycloak('/keycloak-config.json');
 
 
 // If auth is enabled, init keycloak before anything else is loaded.
