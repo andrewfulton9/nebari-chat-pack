@@ -46,7 +46,7 @@ service:
   # -- The port that the service should expose
   port: 80
   # -- The target port on the container
-  targetPort: 80
+  targetPort: 8080
 
 keycloak:
   authServerUrl: ""
