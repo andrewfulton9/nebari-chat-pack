@@ -45,14 +45,14 @@ spec:
           startupProbe:
             httpGet:
               port: {{ .Values.service.targetPort }}
-              path: /
+              path: /healthz
             periodSeconds: 1
             timeoutSeconds: 1
             failureThreshold: 30
           livenessProbe:
             httpGet:
               port: {{ .Values.service.targetPort }}
-              path: /
+              path: /healthz
             periodSeconds: 10
             timeoutSeconds: 1
             failureThreshold: 3
