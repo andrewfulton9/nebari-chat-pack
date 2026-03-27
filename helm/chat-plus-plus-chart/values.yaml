@@ -70,5 +70,11 @@ nebariapp:
       - openid
       - profile
       - email
+  routing:
+    publicRoutes:
+      - pathPrefix: /
+        pathType: PathPrefix
+    tls:
+      enabled: true
   gateway: public
 
