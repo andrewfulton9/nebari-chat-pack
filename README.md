@@ -73,6 +73,39 @@ docker run -p 8080:8080 -e API_URL=http://host.docker.internal:8000 chat-plus-pl
 
 Open your browser at `http://localhost:8080`.
 
+# Publishing to Quay (Manual)
+
+There is no CI/CD pipeline for this project. The Docker image and Helm chart must be built and
+pushed manually.
+
+## Docker Image
+
+Build and push the image for `linux/amd64`:
+
+```
+docker buildx build --platform linux/amd64 \
+  -t quay.io/openteams/chat-plus-plus:<version> \
+  -t quay.io/openteams/chat-plus-plus:latest \
+  --push .
+```
+
+## Helm Chart
+
+Package and push the chart:
+
+```
+helm package helm/chat-plus-plus-chart
+helm push chat-plus-plus-chart-<version>.tgz oci://quay.io/openteams
+```
+
+This publishes to `quay.io/openteams/chat-plus-plus-chart:<version>`. Push to `oci://quay.io/openteams`
+(the org level) so the chart name from `Chart.yaml` becomes the repo name. Do **not** push to
+`oci://quay.io/openteams/chat-plus-plus-chart` as that creates an unwanted nested path.
+
+After pushing, update `targetRevision` and `image.tag` in the gitops repo
+([hrafnar-nebari-dev](https://github.com/openteams-ai/hrafnar-nebari-dev)) at
+`apps/apps/chat-plus-plus.yaml`.
+
 # Run a Production Build
 
 To build a production bundle for deployment, first make sure your `env` file is configured properly
