@@ -37,8 +37,8 @@ function ChatOutput(): ReactNode {
   const { data: messages } = useQuery(query);
 
   // Create the content for the thread.
-  const content = (messages ?? []).map(message =>
-    <MessageRendererMemo key={ message.id } message={ message } />
+  const content = (messages ?? []).map(msg =>
+    <MessageRendererMemo key={ msg.id } message={ msg } />
   );
 
   // Return the rendered component.

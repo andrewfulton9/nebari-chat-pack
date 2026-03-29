@@ -27,7 +27,7 @@ import {
 /**
  * A react component that renders the tool count for an assitant mesage.
  *
- * The count is shown as a link that will open/close the sidebar.
+ * The link will open the tool content in the chat sidebar.
  */
 export
 function ToolCountLink(props: ToolCountLink.Props): ReactNode {

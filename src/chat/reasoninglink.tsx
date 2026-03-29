@@ -27,7 +27,7 @@ import {
 /**
  * A react component that renders a "Reasoning" link.
  *
- * The link will open the reasoning results in the chat sidebar.
+ * The link will open the reasoning content in the chat sidebar.
  */
 export
 function ReasoningLink(props: ReasoningLink.Props): ReactNode {
