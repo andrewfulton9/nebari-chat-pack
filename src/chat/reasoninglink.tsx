@@ -54,8 +54,8 @@ function ReasoningLink(props: ReasoningLink.Props): ReactNode {
         to='.'
         search={ prev => ({ ...prev, detailId: opened ? undefined : message.id }) }
         className={ cn(
-          'h-6 gap-2 items-center flex-0 text-nowrap text-xs',
-          'rounded-sm cursor-pointer bg-bg-neutral-dark',
+          'px-2 h-6 inline-flex gap-2 items-center text-nowrap text-xs',
+          'rounded-sm cursor-pointer bg-bg-neutral-dark border',
           'hover:no-underline hover:bg-bg-neutral-default' ) }>
         Reasoning
         { openCloseIcon }
