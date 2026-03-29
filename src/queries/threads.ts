@@ -254,6 +254,13 @@ namespace Private {
     // Fetch the parent message id from the event.
     const pid = evt.parentMessageId;
 
+    // Create the new tool call.
+    const toolCall = {
+      type: 'function',
+      id: evt.toolCallId,
+      function: { name: evt.toolCallName, arguments: '' }
+    } as const;
+
     // Find the best message to associate with the tool call.
     const msg = (
       evt.pid ?
@@ -262,8 +269,19 @@ namespace Private {
     );
 
     // It's an error if a parent id was specified but not found.
+    //
+    // FIXME: this should be an error, but some models (like GPT-5.4) in
+    // Pydantic seem to invent parent message ids that don't exist. For
+    // now, just sythesize the message, until we can find out what causes
+    // it.
     if (pid && !msg) {
-      console.error(`Message ${pid} not found`);
+      console.warn(`Message ${pid} not found. Synthesizing one.`);
+      draft.push({
+        id: pid,
+        role: 'assistant',
+        content: '',
+        toolCalls: [toolCall]
+      });
       return;
     }
 
@@ -272,13 +290,6 @@ namespace Private {
       console.error(`Message ${msg.id} has invalid role: ${msg.role}`);
       return;
     }
-
-    // Create the new tool call.
-    const toolCall = {
-      type: 'function',
-      id: evt.toolCallId,
-      function: { name: evt.toolCallName, arguments: '' }
-    } as const;
 
     // If a parent message was found, add the tool call.
     if (msg) {
