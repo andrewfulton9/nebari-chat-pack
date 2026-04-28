@@ -62,13 +62,16 @@ namespace Private {
     };
 
     // Create the items for the selector
-    const items = agents.map(agent => (
-      <SelectItem
-        key={ agent.id }
-        value={ agent.id }>
-        { agent.name ?? agent.id }
-      </SelectItem>
-    ));
+    const items = agents.map(agent => {
+      const agentName = agent.capabilities.identity?.name ?? agent.id;
+      return (
+        <SelectItem
+          key={agent.id}
+          value={agent.id}>
+          {agentName}
+        </SelectItem>
+      );
+    });
 
     // Return the rendered component.
     return (

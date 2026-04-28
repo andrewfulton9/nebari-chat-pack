@@ -211,6 +211,51 @@ namespace createThread {
   };
 }
 
+/**
+ * Rename a thread on the server.
+ *
+ * @param id - The unique id of the thread.
+ *
+ * @param name - The new name for the thread.
+ *
+ * @returns A promise that resolves when the action is complete.
+ */
+export async function renameThread(
+  options: renameThread.Options,
+): Promise<Thread> {
+  // Extract the options.
+  const { threadId, name } = options;
+
+  // Fetch the resource.
+  const resp = await auth.fetch(`/api/threads/${threadId}/rename`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: name }),
+  });
+
+  // Return the parsed result.
+  return ThreadSchema.parse(await resp.json());
+}
+
+/**
+ * The namespace for the `renameThread` statics.
+ */
+export namespace renameThread {
+  /**
+   * A type alias for the `renameThread` options.
+   */
+  export type Options = {
+    /**
+     * The unique id of the thread.
+     */
+    readonly threadId: string;
+
+    /**
+     * The new name for the thread.
+     */
+    readonly name: string;
+  };
+}
 
 /**
  * Delete threads on the server.
