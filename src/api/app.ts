@@ -1,8 +1,8 @@
 /*-----------------------------------------------------------------------------
 | Copyright (c) 2025-present, OpenTeams Inc.
 |----------------------------------------------------------------------------*/
+import * as agui from "@ag-ui/core";
 import * as z from 'zod';
-
 import * as auth from '@/auth';
 
 
@@ -58,17 +58,9 @@ const AgentConfigSchema = z.object({
   id: z.string(),
 
   /**
-   * The human readable name of the agent.
+   * The capabilities of the agent.
    */
-  name: z.string().optional(),
-
-  /**
-   * The description for the agent.
-   *
-   * This is a short description of what the agent does and will be shown
-   * at the start of an empty session.
-   */
-  description: z.string().optional(),
+  capabilities: agui.AgentCapabilitiesSchema,
 
   /**
    * The quick prompts to show for the agent in a new empty chat.

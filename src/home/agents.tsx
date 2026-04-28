@@ -32,14 +32,17 @@ function Agents(): ReactNode {
   }
 
   // Create the cards for the agents.
-  const cards = agents.map(agent =>
-    <LinkCard
-      key={ agent.id }
-      to={ `/chat?agentId=${agent.id}` }
-      title={ `${agent.name}` }
-      description={ `Create a new chat with the ${agent.name} agent` }
-      icon={ <MessageSquarePlus size={ 16 } /> } />
-  );
+  const cards = agents.map(agent => {
+    const agentName = agent.capabilities.identity?.name ?? "";
+    return (
+      <LinkCard
+        key={ agent.id }
+        to={ `/chat?agentId=${agent.id}` }
+        title={ agentName }
+        description={ `Create a new chat with ${agentName}` }
+        icon={ <MessageSquarePlus size={ 16 } /> } />
+    );
+  });
 
   // Return the rendered component.
   return (
