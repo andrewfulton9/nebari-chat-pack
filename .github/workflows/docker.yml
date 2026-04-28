@@ -13,7 +13,7 @@ concurrency:
 env:
   REGISTRY: ${{ vars.DOCKER_REGISTRY }}
   PROJECT: ${{ vars.DOCKER_PROJECT }}
-  IMAGE_NAME: chat-plus-plus
+  IMAGE_NAME: nebari-chat
 
 jobs:
   build:

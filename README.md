@@ -58,13 +58,13 @@ npm run dev
 Build the image:
 
 ```
-docker build -t chat-plus-plus .
+docker build -t nebari-chat .
 ```
 
 Then run the container, passing environment values as needed:
 
 ```
-docker run -p 8080:8080 -e API_URL=http://host.docker.internal:8000 chat-plus-plus
+docker run -p 8080:8080 -e API_URL=http://host.docker.internal:8000 nebari-chat
 ```
 
 > **Note:** Keycloak settings are read from `public/keycloak-config.json` at runtime. In a Kubernetes
