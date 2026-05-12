@@ -1,0 +1,65 @@
+{{- if .Values.frontend.enabled }}
+{{- $component := "frontend" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ravnar.component-name" (dict "top" . "component" $component) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "ravnar.labels" (dict "top" . "component" $component) | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "ravnar.selectorLabels" (dict "top" . "component" $component) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ravnar.labels" (dict "top" . "component" $component) | nindent 8 }}
+    spec:
+      {{- with .Values.frontend.securityContext.pod }}
+      securityContext:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          {{- with .Values.frontend.securityContext.container }}
+          securityContext:
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+          env:
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "ravnar.component-name" (dict "top" . "component" $component) }}
+                  key: API_URL
+          volumeMounts:
+            - name: config
+              mountPath: /usr/share/nginx/html/keycloak-config.json
+              subPath: keycloak-config.json
+              readOnly: true
+          ports:
+            - containerPort: {{ .Values.frontend.service.targetPort }}
+          startupProbe:
+            httpGet:
+              port: {{ .Values.frontend.service.targetPort }}
+              path: /healthz
+            periodSeconds: 1
+            timeoutSeconds: 1
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              port: {{ .Values.frontend.service.targetPort }}
+              path: /healthz
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "ravnar.component-name" (dict "top" . "component" $component) }}
+{{- end }}

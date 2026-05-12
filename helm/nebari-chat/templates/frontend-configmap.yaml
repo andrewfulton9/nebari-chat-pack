@@ -1,0 +1,22 @@
+{{- if .Values.frontend.enabled }}
+{{- $component := "frontend" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ravnar.component-name" (dict "top" . "component" $component) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "ravnar.labels" (dict "top" . "component" $component) | nindent 4 }}
+data:
+  keycloak-config.json: |
+    {{-
+    dict
+      "auth-server-url" (required "keycloak.url is required" .Values.keycloak.url)
+      "realm" (required "keycloak.realm is required" .Values.keycloak.realm)
+      "resource" (.Values.keycloak.clientId | default (printf "%s-%s-spa" .Release.Namespace (include "ravnar.component-name" (dict "top" . "component" $component))))
+    | toPrettyJson | nindent 4
+    }}
+  {{- with include "nebari-chat.ravnarContextJson" . | fromJson }}
+  API_URL: {{ $.Values.frontend.api.url | default (printf "http://%s.%s.svc.cluster.local:%d" (include "ravnar.fullname" .) $.Release.Namespace (.Values.service.port | default 80 | int)) | quote }}
+  {{- end }}
+{{- end }}

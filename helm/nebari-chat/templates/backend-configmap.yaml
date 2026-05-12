@@ -1,0 +1,11 @@
+{{- $component := "backend" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "ravnar.labels" (dict "top" . "component" $component) | nindent 4 }}
+data:
+  config.yaml: |
+    {{- include "ravnar.recursiveTplJson" (dict "top" . "value" (merge .Values.config.inline (.Files.Get "config.yaml" | fromYaml))) | fromJson | toYaml | nindent 4 }}
