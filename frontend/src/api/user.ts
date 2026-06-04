@@ -5,12 +5,10 @@ import * as z from 'zod';
 
 import * as auth from '@/auth';
 
-
 /**
  * The schema for the current user.
  */
-export
-const UserSchema = z.object({
+export const UserSchema = z.object({
   /**
    * The user ID.
    */
@@ -25,21 +23,17 @@ const UserSchema = z.object({
   data: z.record(z.any()),
 });
 
-
 /**
  * A type alias for the current user.
  */
-export
-type User = z.infer<typeof UserSchema>;
-
+export type User = z.infer<typeof UserSchema>;
 
 /**
  * Fetch the current user information including permissions.
  *
  * @returns The user object.
  */
-export
-async function getUser(): Promise<User> {
+export async function getUser(): Promise<User> {
   // Fetch the resource.
   const resp = await auth.fetch('/api/user');
 
